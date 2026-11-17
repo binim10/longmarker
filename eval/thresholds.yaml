@@ -1,0 +1,14 @@
+# Fixed before running the evaluation (decision 41). Do not edit after seeing results.
+accuracy:
+  long_axis_inside_lidc_reader_range_pm_mm: 0.5   # tool long axis within [min,max] of readers ±0.5 mm
+  rider_long_axis_abs_error_mm: "max(1.5, 10% of expert long axis)"
+repeatability:
+  rider_test_retest_abs_delta_long_mm: 1.0          # Daniel's own re-measurement spread (~1 mm)
+matching:
+  correct_nodule_rate: 0.9
+  registration_error_mm_max: 15                     # local search radius (decision 25)
+performance:
+  case_load_s: 5                                    # decision 54
+  click_to_outline_s: 1
+time:
+  target_reduction_follow_up: 0.5                   # Naomi: "roughly halved"

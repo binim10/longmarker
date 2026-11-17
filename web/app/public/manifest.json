@@ -1,0 +1,73 @@
+{
+ "pipeline_version": "0.1.0",
+ "cases": [
+  {
+   "case_id": "RIDER-1129164940_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-1129164940",
+   "timepoint": "retest",
+   "scan_date": "20060920",
+   "series_number": 8,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": null,
+   "difficulty": null,
+   "pair": {
+    "case_id": "RIDER-1129164940_test",
+    "role": "follow-up",
+    "centroid_err_mm": 3.59
+   },
+   "nodule_hint": null
+  },
+  {
+   "case_id": "RIDER-1129164940_test",
+   "source": "RIDER",
+   "patient_id": "RIDER-1129164940",
+   "timepoint": "test",
+   "scan_date": "20060920",
+   "series_number": 4,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": null,
+   "difficulty": null,
+   "pair": {
+    "case_id": "RIDER-1129164940_retest",
+    "role": "baseline",
+    "centroid_err_mm": 3.59
+   },
+   "nodule_hint": null
+  },
+  {
+   "case_id": "RIDER-1801720707_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-1801720707",
+   "timepoint": "retest",
+   "scan_date": "20070111",
+   "series_number": 107,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": null,
+   "difficulty": null,
+   "pair": {
+    "case_id": "RIDER-1801720707_test",
+    "role": "follow-up",
+    "centroid_err_mm": 4.48
+   },
+   "nodule_hint": null
+  },
+  {
+   "case_id": "RIDER-1801720707_test",
+   "source": "RIDER",
+   "patient_id": "RIDER-1801720707",
+   "timepoint": "test",
+   "scan_date": "20070111",
+   "series_number": 101,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": null,
+   "difficulty": null,
+   "pair": {
+    "case_id": "RIDER-1801720707_retest",
+    "role": "baseline",
+    "centroid_err_mm": 4.48
+   },
+   "nodule_hint": null
+  }
+ ]
+}

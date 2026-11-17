@@ -1,0 +1,158 @@
+{
+ "measurements": [
+  {
+   "case_id": "RIDER-1129164940_retest",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "retest",
+   "patient_id": "RIDER-1129164940",
+   "teaching_case": null,
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    140,
+    269,
+    139
+   ],
+   "ms": 582,
+   "tool": {
+    "long": 86.89,
+    "short": 39.68,
+    "vol": 69613,
+    "solidFrac": 0.95
+   },
+   "expert": {
+    "long": 59.45,
+    "short": 46.44,
+    "vol": 54428
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": true,
+   "lo": -450,
+   "open": 3,
+   "dice": 0.811
+  },
+  {
+   "case_id": "RIDER-1129164940_test",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "test",
+   "patient_id": "RIDER-1129164940",
+   "teaching_case": null,
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    156,
+    270,
+    162
+   ],
+   "ms": 491,
+   "tool": {
+    "long": 85.55,
+    "short": 53.3,
+    "vol": 71168,
+    "solidFrac": 0.96
+   },
+   "expert": {
+    "long": 68.06,
+    "short": 50.13,
+    "vol": 61133
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": true,
+   "lo": -450,
+   "open": 3,
+   "dice": 0.843
+  },
+  {
+   "case_id": "RIDER-1801720707_retest",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "retest",
+   "patient_id": "RIDER-1801720707",
+   "teaching_case": null,
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    121,
+    89,
+    104
+   ],
+   "ms": 985,
+   "tool": {
+    "long": 57.11,
+    "short": 11.28,
+    "vol": 4586,
+    "solidFrac": 0.91
+   },
+   "expert": {
+    "long": 13.47,
+    "short": 10.25,
+    "vol": 293
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 2,
+   "dice": 0.09
+  },
+  {
+   "case_id": "RIDER-1801720707_test",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "test",
+   "patient_id": "RIDER-1801720707",
+   "teaching_case": null,
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    116,
+    90,
+    102
+   ],
+   "ms": 889,
+   "tool": {
+    "long": 12.55,
+    "short": 10.25,
+    "vol": 297,
+    "solidFrac": 1
+   },
+   "expert": {
+    "long": 12.77,
+    "short": 9.57,
+    "vol": 256
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -300,
+   "open": 2,
+   "dice": 0.634
+  }
+ ],
+ "matching": [
+  {
+   "baseline": "RIDER-1129164940_test",
+   "followup": "RIDER-1129164940_retest",
+   "predicted_error_mm": 3.9,
+   "found": true,
+   "correct": true,
+   "uncertain": false,
+   "dist": 0,
+   "ratio": 0.98
+  },
+  {
+   "baseline": "RIDER-1801720707_test",
+   "followup": "RIDER-1801720707_retest",
+   "predicted_error_mm": 4.5,
+   "found": true,
+   "correct": true,
+   "uncertain": true,
+   "dist": 0,
+   "ratio": 0.54
+  }
+ ]
+}
