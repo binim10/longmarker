@@ -57,7 +57,7 @@ for (const id of readdirSync(ROOT).sort()) {
       teaching_case: meta.teaching_case ?? null, texture: nod?.texture ?? null, readers_n: nod?.readers ?? 1, seed, ms: Math.round(ms),
       tool: mt && { long: +mt.longMm.toFixed(2), short: +mt.shortMm.toFixed(2), vol: Math.round(mt.volumeMm3), solidFrac: +mt.solidFraction.toFixed(2) },
       expert: me && { long: +me.longMm.toFixed(2), short: +me.shortMm.toFixed(2), vol: Math.round(me.volumeMm3) },
-      readers: rm, leaked: g?.leaked ?? null, uncertain: !!g && (g.leaked || g.touchesWall || !!g.vesselLike), lo: g?.params.lo, open: g?.params.openPx, dice: dice && +dice.toFixed(3),
+      readers: rm, leaked: g?.leaked ?? null, uncertain: !!g && (g.leaked || g.touchesWall || !!g.vesselLike || (!!mt && (mt.longMm > 30 || mt.longMm < 4))), lo: g?.params.lo, open: g?.params.openPx, dice: dice && +dice.toFixed(3),
     })
     if (ni === 0) metas[id] = { meta, seed, vol: mt?.volumeMm3, lo: g?.params.lo }
     const o = out[out.length - 1]

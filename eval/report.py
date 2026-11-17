@@ -88,17 +88,22 @@ good = [d for m, d in dl if abs(d) <= max(1.5, 0.1 * m["expert"]["long"])]
 lines += ["", "## Summary", "",
           f"- Nodules measured: {len(ms)}; flagged uncertain: {unc:.0%} (these need Daniel's correction).",
           f"- Long axis within max(1.5 mm, 10%) of the expert: {len(good)}/{len(dl)}.",
+          f"- Off by more than that **and not flagged** (silent errors — the dangerous kind): "
+          f"{sum(1 for m, d in dl if abs(d) > max(1.5, 0.1 * m['expert']['long']) and not m['uncertain'])}/{len(dl)}: "
+          + ", ".join(f"{m['case_id']}#{m['nodule']} ({d:+.1f} mm)" for m, d in dl if abs(d) > max(1.5, 0.1 * m['expert']['long']) and not m['uncertain']) + ".",
           f"- Median outline time per click: {st.median([m['ms'] for m in ms]):.0f} ms (node; browser is similar)."]
 
 # time model (minutes), Daniel's numbers: finding 10–20, measuring 2–4 per nodule, recording 3–5, matching ~10 on follow-ups
 nod = 1.5
 man_base = 15 + 3 * nod + 4
 man_fu = man_base + 10
-corr = unc  # share of nodules needing a manual correction
+silent = sum(1 for m, d in dl if abs(d) > max(1.5, 0.1 * m['expert']['long']) and not m['uncertain']) / max(1, len(dl))
+corr = unc + silent  # share of nodules needing a manual correction (flagged + silent)
 tool_meas = nod * (0.5 + corr * 2.0)  # click + review, +2 min when a correction is needed
 tool_rec = 0.5
 match_rate = n_ok / max(1, len(mt))
-tool_match = 1.0 * match_rate + 10 * (1 - match_rate)
+unc_match = sum(x['uncertain'] for x in mt) / max(1, len(mt))
+tool_match = match_rate * (1.0 + 2.0 * unc_match) + 10 * (1 - match_rate)  # +2 min to confirm a flagged match
 tool_find_fu = 15 * 0.6  # known nodules are jumped to; Daniel still pages through for new ones
 tool_base = 15 + tool_meas + tool_rec
 tool_fu = tool_find_fu + tool_meas + tool_rec + tool_match

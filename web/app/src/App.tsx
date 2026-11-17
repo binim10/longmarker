@@ -119,6 +119,7 @@ export default function App() {
     if (g?.touchesWall) reasons.push('touches chest wall or mediastinum: edge is a judgement call')
     if (g?.vesselLike || m.longMm > 2.5 * m.shortMm) reasons.push('elongated outline: a vessel may be attached — raise the edge threshold or erase it')
     if (m.longMm < 4) reasons.push('very small (<4 mm)')
+    if (m.longMm > 30) reasons.push('large lesion (>30 mm): edge against mediastinum / vessels is often unclear — check the outline')
     if (prev.reasons) reasons.push(...prev.reasons.filter(r => r.startsWith('match')))
     return {
       mask, box, m, seed, params: g?.params ?? prev.params ?? null, autoLo: g?.autoLo ?? prev.autoLo ?? null,
@@ -240,7 +241,7 @@ export default function App() {
         <h3>Cases <span className="muted">(public TCIA data)</span></h3>
         {patients.map(([k, list]) => (
           <div key={k} className="patient">
-            <div className="pname">{list[0].patient_id}{list[0].tags?.length ? <span className="tags">{list[0].tags.join(' · ')}</span> : null}</div>
+            <div className="pname">{list[0].patient_id}{list[0].tags?.filter(Boolean).length ? <span className="tags">{list[0].tags.filter(Boolean).join(' · ')}</span> : null}</div>
             {list.map(c => {
               const n = rowsForCase(c.case_id).length
               return (

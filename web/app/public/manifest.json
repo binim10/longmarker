@@ -2,23 +2,6 @@
  "pipeline_version": "0.1.0",
  "cases": [
   {
-   "case_id": "RIDER-1129164940_retest",
-   "source": "RIDER",
-   "patient_id": "RIDER-1129164940",
-   "timepoint": "retest",
-   "scan_date": "20060920",
-   "series_number": 8,
-   "slice_thickness_mm": 1.25,
-   "teaching_case": null,
-   "difficulty": null,
-   "pair": {
-    "case_id": "RIDER-1129164940_test",
-    "role": "follow-up",
-    "centroid_err_mm": 3.59
-   },
-   "nodule_hint": null
-  },
-  {
    "case_id": "RIDER-1129164940_test",
    "source": "RIDER",
    "patient_id": "RIDER-1129164940",
@@ -26,31 +9,73 @@
    "scan_date": "20060920",
    "series_number": 4,
    "slice_thickness_mm": 1.25,
-   "teaching_case": null,
-   "difficulty": null,
+   "teaching_case": "large tumour",
+   "difficulty": "hard",
    "pair": {
     "case_id": "RIDER-1129164940_retest",
     "role": "baseline",
     "centroid_err_mm": 3.59
    },
-   "nodule_hint": null
+   "tags": [
+    "expert 68 mm"
+   ]
   },
   {
-   "case_id": "RIDER-1801720707_retest",
+   "case_id": "RIDER-1129164940_retest",
    "source": "RIDER",
-   "patient_id": "RIDER-1801720707",
+   "patient_id": "RIDER-1129164940",
    "timepoint": "retest",
-   "scan_date": "20070111",
-   "series_number": 107,
+   "scan_date": "20060920",
+   "series_number": 8,
    "slice_thickness_mm": 1.25,
-   "teaching_case": null,
-   "difficulty": null,
+   "teaching_case": "large tumour",
+   "difficulty": "hard",
    "pair": {
-    "case_id": "RIDER-1801720707_test",
+    "case_id": "RIDER-1129164940_test",
     "role": "follow-up",
-    "centroid_err_mm": 4.48
+    "centroid_err_mm": 3.59
    },
-   "nodule_hint": null
+   "tags": [
+    "expert 68 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-1225316081_test",
+   "source": "RIDER",
+   "patient_id": "RIDER-1225316081",
+   "timepoint": "test",
+   "scan_date": "20070130",
+   "series_number": 105,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "hard",
+   "pair": {
+    "case_id": "RIDER-1225316081_retest",
+    "role": "baseline",
+    "centroid_err_mm": 3.86
+   },
+   "tags": [
+    "expert 15 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-1225316081_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-1225316081",
+   "timepoint": "retest",
+   "scan_date": "20070130",
+   "series_number": 101,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "hard",
+   "pair": {
+    "case_id": "RIDER-1225316081_test",
+    "role": "follow-up",
+    "centroid_err_mm": 3.86
+   },
+   "tags": [
+    "expert 15 mm"
+   ]
   },
   {
    "case_id": "RIDER-1801720707_test",
@@ -60,14 +85,267 @@
    "scan_date": "20070111",
    "series_number": 101,
    "slice_thickness_mm": 1.25,
-   "teaching_case": null,
-   "difficulty": null,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "hard",
    "pair": {
     "case_id": "RIDER-1801720707_retest",
     "role": "baseline",
     "centroid_err_mm": 4.48
    },
-   "nodule_hint": null
+   "tags": [
+    "expert 13 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-1801720707_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-1801720707",
+   "timepoint": "retest",
+   "scan_date": "20070111",
+   "series_number": 107,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "hard",
+   "pair": {
+    "case_id": "RIDER-1801720707_test",
+    "role": "follow-up",
+    "centroid_err_mm": 4.48
+   },
+   "tags": [
+    "expert 13 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-1867199702_test",
+   "source": "RIDER",
+   "patient_id": "RIDER-1867199702",
+   "timepoint": "test",
+   "scan_date": "20061215",
+   "series_number": 4,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "medium",
+   "pair": {
+    "case_id": "RIDER-1867199702_retest",
+    "role": "baseline",
+    "centroid_err_mm": 1.46
+   },
+   "tags": [
+    "expert 17 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-1867199702_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-1867199702",
+   "timepoint": "retest",
+   "scan_date": "20061215",
+   "series_number": 100,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "medium",
+   "pair": {
+    "case_id": "RIDER-1867199702_test",
+    "role": "follow-up",
+    "centroid_err_mm": 1.46
+   },
+   "tags": [
+    "expert 17 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-2541949645_test",
+   "source": "RIDER",
+   "patient_id": "RIDER-2541949645",
+   "timepoint": "test",
+   "scan_date": "20070309",
+   "series_number": 10,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "medium",
+   "pair": {
+    "case_id": "RIDER-2541949645_retest",
+    "role": "baseline",
+    "centroid_err_mm": 1.01
+   },
+   "tags": [
+    "expert 19 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-2541949645_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-2541949645",
+   "timepoint": "retest",
+   "scan_date": "20070309",
+   "series_number": 13,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "follow-up match (small)",
+   "difficulty": "medium",
+   "pair": {
+    "case_id": "RIDER-2541949645_test",
+    "role": "follow-up",
+    "centroid_err_mm": 1.01
+   },
+   "tags": [
+    "expert 19 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-2655999012_test",
+   "source": "RIDER",
+   "patient_id": "RIDER-2655999012",
+   "timepoint": "test",
+   "scan_date": "20070104",
+   "series_number": 202,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "large tumour",
+   "difficulty": "hard",
+   "pair": {
+    "case_id": "RIDER-2655999012_retest",
+    "role": "baseline",
+    "centroid_err_mm": 1.25
+   },
+   "tags": [
+    "expert 31 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-2655999012_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-2655999012",
+   "timepoint": "retest",
+   "scan_date": "20070104",
+   "series_number": 302,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "large tumour",
+   "difficulty": "hard",
+   "pair": {
+    "case_id": "RIDER-2655999012_test",
+    "role": "follow-up",
+    "centroid_err_mm": 1.25
+   },
+   "tags": [
+    "expert 31 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-2669524182_test",
+   "source": "RIDER",
+   "patient_id": "RIDER-2669524182",
+   "timepoint": "test",
+   "scan_date": "20070124",
+   "series_number": 70,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "large tumour",
+   "difficulty": "hard",
+   "pair": {
+    "case_id": "RIDER-2669524182_retest",
+    "role": "baseline",
+    "centroid_err_mm": 1.05
+   },
+   "tags": [
+    "expert 39 mm"
+   ]
+  },
+  {
+   "case_id": "RIDER-2669524182_retest",
+   "source": "RIDER",
+   "patient_id": "RIDER-2669524182",
+   "timepoint": "retest",
+   "scan_date": "20070124",
+   "series_number": 102,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "large tumour",
+   "difficulty": "hard",
+   "pair": {
+    "case_id": "RIDER-2669524182_test",
+    "role": "follow-up",
+    "centroid_err_mm": 1.05
+   },
+   "tags": [
+    "expert 39 mm"
+   ]
+  },
+  {
+   "case_id": "LIDC-IDRI-0017",
+   "source": "LIDC",
+   "patient_id": "LIDC-IDRI-0017",
+   "timepoint": "baseline",
+   "scan_date": "20000101",
+   "series_number": 3000613,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "small solid (subtle)",
+   "difficulty": "hard",
+   "pair": null,
+   "tags": [
+    "1 nodule: 8 mm",
+    "4 radiologists"
+   ]
+  },
+  {
+   "case_id": "LIDC-IDRI-0088",
+   "source": "LIDC",
+   "patient_id": "LIDC-IDRI-0088",
+   "timepoint": "baseline",
+   "scan_date": "20000101",
+   "series_number": 4,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "faint ground-glass",
+   "difficulty": "hard",
+   "pair": null,
+   "tags": [
+    "2 nodules: 8 mm, 6 mm",
+    "3\u20134 radiologists"
+   ]
+  },
+  {
+   "case_id": "LIDC-IDRI-0164",
+   "source": "LIDC",
+   "patient_id": "LIDC-IDRI-0164",
+   "timepoint": "baseline",
+   "scan_date": "20000101",
+   "series_number": 2,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "solid (easy)",
+   "difficulty": "easy",
+   "pair": null,
+   "tags": [
+    "2 nodules: 16 mm, 13 mm",
+    "4 radiologists"
+   ]
+  },
+  {
+   "case_id": "LIDC-IDRI-0590",
+   "source": "LIDC",
+   "patient_id": "LIDC-IDRI-0590",
+   "timepoint": "baseline",
+   "scan_date": "20000101",
+   "series_number": 30726,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "part-solid",
+   "difficulty": "medium",
+   "pair": null,
+   "tags": [
+    "1 nodule: 9 mm",
+    "4 radiologists"
+   ]
+  },
+  {
+   "case_id": "LIDC-IDRI-0915",
+   "source": "LIDC",
+   "patient_id": "LIDC-IDRI-0915",
+   "timepoint": "baseline",
+   "scan_date": "20000101",
+   "series_number": 2,
+   "slice_thickness_mm": 1.25,
+   "teaching_case": "spiculated",
+   "difficulty": "hard",
+   "pair": null,
+   "tags": [
+    "1 nodule: 10 mm",
+    "4 radiologists"
+   ]
   }
  ]
 }

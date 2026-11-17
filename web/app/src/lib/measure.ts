@@ -1,7 +1,7 @@
 // LongMarker measurement engine. Pure functions, no DOM, so the same code runs
 // in the browser and in the offline evaluation (node). Research use only.
 
-export const ALGO_VERSION = 'lm-measure-0.1.0'
+export const ALGO_VERSION = 'lm-measure-0.2.0'
 
 export type Vec3 = [number, number, number]
 export interface Vol {
@@ -428,7 +428,9 @@ export function growAuto(ct: ArrayLike<number>, lungs: ArrayLike<number> | null,
   const ok = (r: GrowResult | null): boolean => !!r && !r.leaked && r.voxels > 10 && elong(r) < 2.5
   if (ok(first)) return first
   const lo = first.params.lo
+  const ggo = first.autoLo < -500 && p.lo === undefined // hazy nodule: try a lower edge + 3D opening first
   const tries: Partial<GrowParams>[] = [
+    ...(ggo ? [{ lo: lo - 50, openPx: 3, open3d: true }, { lo: lo - 100, openPx: 3, open3d: true }, { lo: lo - 100, openPx: 4, open3d: true }] : []),
     { openPx: 3, open3d: true }, { openPx: 4, open3d: true },
     { lo: Math.min(-200, lo + 100) }, { lo: Math.min(-150, lo + 150) }, { lo: Math.min(-150, lo + 150), openPx: 3, open3d: true },
   ]

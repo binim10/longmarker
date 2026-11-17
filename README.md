@@ -37,6 +37,7 @@ uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python pydicom SimpleITK numpy scipy scikit-image requests nibabel pandas pylidc "setuptools<70" lungmask
 .venv/bin/python prepare_rider.py RIDER-1129164940 RIDER-1801720707 RIDER-1225316081 RIDER-1867199702 RIDER-2541949645 RIDER-2655999012 RIDER-2669524182
 .venv/bin/python prepare_lidc.py
+.venv/bin/python tag_cases.py
 .venv/bin/python -c "from common import build_manifest; build_manifest('../web/app/public/cases')"
 
 # 2) run the app
@@ -45,7 +46,8 @@ cd ../web/app && npm install && npm run dev
 # 3) evaluate (writes eval/results.json), then build the report
 npx tsx eval/eval.ts > ../../eval/results.json && python3 ../../eval/report.py
 
-# 4) deploy (static)
-npx vite build && cd dist && npx vercel deploy --prod
+# 4) deploy (static). Deploy a copy outside the git repo: Vercel blocks CLI deploys
+#    whose commit author is not a team member (junctions J11)
+npx vite build && rsync -a --delete dist/ /tmp/longmarker-dist/ && cd /tmp/longmarker-dist && npx vercel deploy --prod
 ```
 Case data is not committed, because it is regenerable and large. `torch` (through lungmask) is needed only in the offline pipeline, never in the browser.

@@ -1,12 +1,385 @@
 {
  "measurements": [
   {
+   "case_id": "LIDC-IDRI-0017",
+   "nodule": 1,
+   "source": "LIDC",
+   "timepoint": "baseline",
+   "patient_id": "LIDC-IDRI-0017",
+   "teaching_case": "small solid (subtle)",
+   "texture": 5,
+   "readers_n": 4,
+   "seed": [
+    285,
+    242,
+    156
+   ],
+   "ms": 134,
+   "tool": {
+    "long": 6.52,
+    "short": 5.83,
+    "vol": 77,
+    "solidFrac": 0.77
+   },
+   "expert": {
+    "long": 8.5,
+    "short": 7.29,
+    "vol": 192
+   },
+   "readers": [
+    {
+     "long": 8.5,
+     "short": 6.56,
+     "vol": 160
+    },
+    {
+     "long": 7.85,
+     "short": 7.29,
+     "vol": 157
+    },
+    {
+     "long": 8.8,
+     "short": 7.65,
+     "vol": 194
+    },
+    {
+     "long": 9.72,
+     "short": 8.01,
+     "vol": 244
+    }
+   ],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 2,
+   "dice": 0.573
+  },
+  {
+   "case_id": "LIDC-IDRI-0088",
+   "nodule": 1,
+   "source": "LIDC",
+   "timepoint": "baseline",
+   "patient_id": "LIDC-IDRI-0088",
+   "teaching_case": "faint ground-glass",
+   "texture": 1.5,
+   "readers_n": 4,
+   "seed": [
+    353,
+    234,
+    50
+   ],
+   "ms": 609,
+   "tool": {
+    "long": 7.95,
+    "short": 7.01,
+    "vol": 181,
+    "solidFrac": 0.04
+   },
+   "expert": {
+    "long": 8.49,
+    "short": 7.62,
+    "vol": 130
+   },
+   "readers": [
+    {
+     "long": 8.49,
+     "short": 7.62,
+     "vol": 125
+    },
+    {
+     "long": 9.84,
+     "short": 8.23,
+     "vol": 167
+    },
+    {
+     "long": 8.18,
+     "short": 7.01,
+     "vol": 95
+    },
+    {
+     "long": 8.02,
+     "short": 7.31,
+     "vol": 116
+    }
+   ],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -743,
+   "open": 3,
+   "dice": 0.592
+  },
+  {
+   "case_id": "LIDC-IDRI-0088",
+   "nodule": 2,
+   "source": "LIDC",
+   "timepoint": "baseline",
+   "patient_id": "LIDC-IDRI-0088",
+   "teaching_case": "faint ground-glass",
+   "texture": 2,
+   "readers_n": 3,
+   "seed": [
+    364,
+    174,
+    158
+   ],
+   "ms": 687,
+   "tool": {
+    "long": 10.64,
+    "short": 6.7,
+    "vol": 320,
+    "solidFrac": 0.23
+   },
+   "expert": {
+    "long": 6.81,
+    "short": 5.79,
+    "vol": 67
+   },
+   "readers": [
+    {
+     "long": 7.34,
+     "short": 5.79,
+     "vol": 108
+    },
+    {
+     "long": 5.78,
+     "short": 5.48,
+     "vol": 39
+    },
+    {
+     "long": 6.81,
+     "short": 5.18,
+     "vol": 62
+    }
+   ],
+   "leaked": false,
+   "uncertain": true,
+   "lo": -850,
+   "open": 3,
+   "dice": 0.333
+  },
+  {
+   "case_id": "LIDC-IDRI-0164",
+   "nodule": 1,
+   "source": "LIDC",
+   "timepoint": "baseline",
+   "patient_id": "LIDC-IDRI-0164",
+   "teaching_case": "solid (easy)",
+   "texture": 5,
+   "readers_n": 4,
+   "seed": [
+    318,
+    182,
+    53
+   ],
+   "ms": 98,
+   "tool": {
+    "long": 14.3,
+    "short": 12.89,
+    "vol": 963,
+    "solidFrac": 0.87
+   },
+   "expert": {
+    "long": 16.21,
+    "short": 14.61,
+    "vol": 1326
+   },
+   "readers": [
+    {
+     "long": 15.85,
+     "short": 14.61,
+     "vol": 1485
+    },
+    {
+     "long": 14.17,
+     "short": 12.03,
+     "vol": 926
+    },
+    {
+     "long": 15.85,
+     "short": 13.75,
+     "vol": 1249
+    },
+    {
+     "long": 17.19,
+     "short": 15.47,
+     "vol": 1372
+    }
+   ],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 2,
+   "dice": 0.84
+  },
+  {
+   "case_id": "LIDC-IDRI-0164",
+   "nodule": 2,
+   "source": "LIDC",
+   "timepoint": "baseline",
+   "patient_id": "LIDC-IDRI-0164",
+   "teaching_case": "solid (easy)",
+   "texture": 5,
+   "readers_n": 4,
+   "seed": [
+    252,
+    125,
+    167
+   ],
+   "ms": 54,
+   "tool": {
+    "long": 12.3,
+    "short": 10.31,
+    "vol": 492,
+    "solidFrac": 0.77
+   },
+   "expert": {
+    "long": 13.34,
+    "short": 11.17,
+    "vol": 678
+   },
+   "readers": [
+    {
+     "long": 14.61,
+     "short": 12.46,
+     "vol": 982
+    },
+    {
+     "long": 12.3,
+     "short": 10.31,
+     "vol": 461
+    },
+    {
+     "long": 13.99,
+     "short": 12.03,
+     "vol": 679
+    },
+    {
+     "long": 15.01,
+     "short": 11.17,
+     "vol": 632
+    }
+   ],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 2,
+   "dice": 0.838
+  },
+  {
+   "case_id": "LIDC-IDRI-0590",
+   "nodule": 1,
+   "source": "LIDC",
+   "timepoint": "baseline",
+   "patient_id": "LIDC-IDRI-0590",
+   "teaching_case": "part-solid",
+   "texture": 3,
+   "readers_n": 4,
+   "seed": [
+    344,
+    131,
+    252
+   ],
+   "ms": 122,
+   "tool": {
+    "long": 8.55,
+    "short": 5.98,
+    "vol": 68,
+    "solidFrac": 0.31
+   },
+   "expert": {
+    "long": 9.38,
+    "short": 8.44,
+    "vol": 174
+   },
+   "readers": [
+    {
+     "long": 8.55,
+     "short": 7.03,
+     "vol": 139
+    },
+    {
+     "long": 9.56,
+     "short": 8.79,
+     "vol": 156
+    },
+    {
+     "long": 10.07,
+     "short": 8.79,
+     "vol": 217
+    },
+    {
+     "long": 9.38,
+     "short": 7.73,
+     "vol": 183
+    }
+   ],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -533,
+   "open": 2,
+   "dice": 0.563
+  },
+  {
+   "case_id": "LIDC-IDRI-0915",
+   "nodule": 1,
+   "source": "LIDC",
+   "timepoint": "baseline",
+   "patient_id": "LIDC-IDRI-0915",
+   "teaching_case": "spiculated",
+   "texture": 5,
+   "readers_n": 4,
+   "seed": [
+    52,
+    187,
+    87
+   ],
+   "ms": 67,
+   "tool": {
+    "long": 9.46,
+    "short": 5.63,
+    "vol": 83,
+    "solidFrac": 0.7
+   },
+   "expert": {
+    "long": 11.53,
+    "short": 7.38,
+    "vol": 160
+   },
+   "readers": [
+    {
+     "long": 10.71,
+     "short": 8.09,
+     "vol": 172
+    },
+    {
+     "long": 9.56,
+     "short": 5.63,
+     "vol": 104
+    },
+    {
+     "long": 12.1,
+     "short": 8.79,
+     "vol": 175
+    },
+    {
+     "long": 11.12,
+     "short": 6.33,
+     "vol": 166
+    }
+   ],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 2,
+   "dice": 0.685
+  },
+  {
    "case_id": "RIDER-1129164940_retest",
    "nodule": 1,
    "source": "RIDER",
    "timepoint": "retest",
    "patient_id": "RIDER-1129164940",
-   "teaching_case": null,
+   "teaching_case": "large tumour",
    "texture": null,
    "readers_n": 1,
    "seed": [
@@ -14,7 +387,7 @@
     269,
     139
    ],
-   "ms": 582,
+   "ms": 469,
    "tool": {
     "long": 86.89,
     "short": 39.68,
@@ -39,7 +412,7 @@
    "source": "RIDER",
    "timepoint": "test",
    "patient_id": "RIDER-1129164940",
-   "teaching_case": null,
+   "teaching_case": "large tumour",
    "texture": null,
    "readers_n": 1,
    "seed": [
@@ -47,7 +420,7 @@
     270,
     162
    ],
-   "ms": 491,
+   "ms": 476,
    "tool": {
     "long": 85.55,
     "short": 53.3,
@@ -67,12 +440,78 @@
    "dice": 0.843
   },
   {
+   "case_id": "RIDER-1225316081_retest",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "retest",
+   "patient_id": "RIDER-1225316081",
+   "teaching_case": "follow-up match (small)",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    139,
+    110,
+    74
+   ],
+   "ms": 121,
+   "tool": {
+    "long": 17.48,
+    "short": 11.76,
+    "vol": 505,
+    "solidFrac": 0.75
+   },
+   "expert": {
+    "long": 14.04,
+    "short": 12.12,
+    "vol": 562
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 2,
+   "dice": 0.765
+  },
+  {
+   "case_id": "RIDER-1225316081_test",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "test",
+   "patient_id": "RIDER-1225316081",
+   "teaching_case": "follow-up match (small)",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    125,
+    117,
+    66
+   ],
+   "ms": 128,
+   "tool": {
+    "long": 16.37,
+    "short": 13.48,
+    "vol": 478,
+    "solidFrac": 0.8
+   },
+   "expert": {
+    "long": 14.52,
+    "short": 13.48,
+    "vol": 602
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 2,
+   "dice": 0.761
+  },
+  {
    "case_id": "RIDER-1801720707_retest",
    "nodule": 1,
    "source": "RIDER",
    "timepoint": "retest",
    "patient_id": "RIDER-1801720707",
-   "teaching_case": null,
+   "teaching_case": "follow-up match (small)",
    "texture": null,
    "readers_n": 1,
    "seed": [
@@ -80,7 +519,7 @@
     89,
     104
    ],
-   "ms": 985,
+   "ms": 996,
    "tool": {
     "long": 57.11,
     "short": 11.28,
@@ -94,7 +533,7 @@
    },
    "readers": [],
    "leaked": false,
-   "uncertain": false,
+   "uncertain": true,
    "lo": -450,
    "open": 2,
    "dice": 0.09
@@ -105,7 +544,7 @@
    "source": "RIDER",
    "timepoint": "test",
    "patient_id": "RIDER-1801720707",
-   "teaching_case": null,
+   "teaching_case": "follow-up match (small)",
    "texture": null,
    "readers_n": 1,
    "seed": [
@@ -113,7 +552,7 @@
     90,
     102
    ],
-   "ms": 889,
+   "ms": 825,
    "tool": {
     "long": 12.55,
     "short": 10.25,
@@ -131,6 +570,270 @@
    "lo": -300,
    "open": 2,
    "dice": 0.634
+  },
+  {
+   "case_id": "RIDER-1867199702_retest",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "retest",
+   "patient_id": "RIDER-1867199702",
+   "teaching_case": "follow-up match (small)",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    302,
+    253,
+    79
+   ],
+   "ms": 433,
+   "tool": {
+    "long": 16.95,
+    "short": 14.26,
+    "vol": 1594,
+    "solidFrac": 0.9
+   },
+   "expert": {
+    "long": 17.67,
+    "short": 14.84,
+    "vol": 1633
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 3,
+   "dice": 0.854
+  },
+  {
+   "case_id": "RIDER-1867199702_test",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "test",
+   "patient_id": "RIDER-1867199702",
+   "teaching_case": "follow-up match (small)",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    303,
+    258,
+    84
+   ],
+   "ms": 402,
+   "tool": {
+    "long": 18.23,
+    "short": 13.68,
+    "vol": 1679,
+    "solidFrac": 0.9
+   },
+   "expert": {
+    "long": 17.44,
+    "short": 14.84,
+    "vol": 1664
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -450,
+   "open": 3,
+   "dice": 0.831
+  },
+  {
+   "case_id": "RIDER-2541949645_retest",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "retest",
+   "patient_id": "RIDER-2541949645",
+   "teaching_case": "follow-up match (small)",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    389,
+    286,
+    38
+   ],
+   "ms": 408,
+   "tool": {
+    "long": 19.13,
+    "short": 12.89,
+    "vol": 2041,
+    "solidFrac": 0.24
+   },
+   "expert": {
+    "long": 17.63,
+    "short": 16.11,
+    "vol": 1944
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -736,
+   "open": 3,
+   "dice": 0.745
+  },
+  {
+   "case_id": "RIDER-2541949645_test",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "test",
+   "patient_id": "RIDER-2541949645",
+   "teaching_case": "follow-up match (small)",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    404,
+    286,
+    41
+   ],
+   "ms": 449,
+   "tool": {
+    "long": 18.52,
+    "short": 15.01,
+    "vol": 1769,
+    "solidFrac": 0.23
+   },
+   "expert": {
+    "long": 19.29,
+    "short": 13.59,
+    "vol": 1567
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": false,
+   "lo": -760,
+   "open": 3,
+   "dice": 0.762
+  },
+  {
+   "case_id": "RIDER-2655999012_retest",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "retest",
+   "patient_id": "RIDER-2655999012",
+   "teaching_case": "large tumour",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    62,
+    155,
+    122
+   ],
+   "ms": 380,
+   "tool": {
+    "long": 37.27,
+    "short": 24.61,
+    "vol": 9294,
+    "solidFrac": 0.86
+   },
+   "expert": {
+    "long": 29.17,
+    "short": 13.13,
+    "vol": 2773
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": true,
+   "lo": -450,
+   "open": 3,
+   "dice": 0.397
+  },
+  {
+   "case_id": "RIDER-2655999012_test",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "test",
+   "patient_id": "RIDER-2655999012",
+   "teaching_case": "large tumour",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    60,
+    142,
+    124
+   ],
+   "ms": 347,
+   "tool": {
+    "long": 43.35,
+    "short": 21.03,
+    "vol": 8129,
+    "solidFrac": 0.86
+   },
+   "expert": {
+    "long": 30.56,
+    "short": 12.96,
+    "vol": 2729
+   },
+   "readers": [],
+   "leaked": false,
+   "uncertain": true,
+   "lo": -450,
+   "open": 3,
+   "dice": 0.431
+  },
+  {
+   "case_id": "RIDER-2669524182_retest",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "retest",
+   "patient_id": "RIDER-2669524182",
+   "teaching_case": "large tumour",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    264,
+    258,
+    103
+   ],
+   "ms": 1704,
+   "tool": {
+    "long": 80.07,
+    "short": 46.63,
+    "vol": 90348,
+    "solidFrac": 0.7
+   },
+   "expert": {
+    "long": 42.13,
+    "short": 33.68,
+    "vol": 22893
+   },
+   "readers": [],
+   "leaked": true,
+   "uncertain": true,
+   "lo": -750,
+   "open": 2,
+   "dice": 0.36
+  },
+  {
+   "case_id": "RIDER-2669524182_test",
+   "nodule": 1,
+   "source": "RIDER",
+   "timepoint": "test",
+   "patient_id": "RIDER-2669524182",
+   "teaching_case": "large tumour",
+   "texture": null,
+   "readers_n": 1,
+   "seed": [
+    260,
+    244,
+    104
+   ],
+   "ms": 1543,
+   "tool": {
+    "long": 87.48,
+    "short": 34.98,
+    "vol": 91476,
+    "solidFrac": 0.73
+   },
+   "expert": {
+    "long": 38.66,
+    "short": 36.92,
+    "vol": 22083
+   },
+   "readers": [],
+   "leaked": true,
+   "uncertain": true,
+   "lo": -750,
+   "open": 2,
+   "dice": 0.348
   }
  ],
  "matching": [
@@ -145,6 +848,16 @@
    "ratio": 0.98
   },
   {
+   "baseline": "RIDER-1225316081_test",
+   "followup": "RIDER-1225316081_retest",
+   "predicted_error_mm": 3.7,
+   "found": true,
+   "correct": true,
+   "uncertain": true,
+   "dist": 0,
+   "ratio": 1.06
+  },
+  {
    "baseline": "RIDER-1801720707_test",
    "followup": "RIDER-1801720707_retest",
    "predicted_error_mm": 4.5,
@@ -153,6 +866,46 @@
    "uncertain": true,
    "dist": 0,
    "ratio": 0.54
+  },
+  {
+   "baseline": "RIDER-1867199702_test",
+   "followup": "RIDER-1867199702_retest",
+   "predicted_error_mm": 1.6,
+   "found": true,
+   "correct": true,
+   "uncertain": true,
+   "dist": 0,
+   "ratio": 0.95
+  },
+  {
+   "baseline": "RIDER-2541949645_test",
+   "followup": "RIDER-2541949645_retest",
+   "predicted_error_mm": 1,
+   "found": true,
+   "correct": true,
+   "uncertain": false,
+   "dist": 0,
+   "ratio": 1.25
+  },
+  {
+   "baseline": "RIDER-2655999012_test",
+   "followup": "RIDER-2655999012_retest",
+   "predicted_error_mm": 1.7,
+   "found": true,
+   "correct": true,
+   "uncertain": false,
+   "dist": 0,
+   "ratio": 1.14
+  },
+  {
+   "baseline": "RIDER-2669524182_test",
+   "followup": "RIDER-2669524182_retest",
+   "predicted_error_mm": 1.7,
+   "found": true,
+   "correct": true,
+   "uncertain": true,
+   "dist": 1,
+   "ratio": 1
   }
  ]
 }
