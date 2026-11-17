@@ -23,7 +23,7 @@ OUT = pathlib.Path(__file__).parent.parent / "web" / "app" / "public" / "cases"
 # patient -> (teaching case label, difficulty, selector on cluster medians)
 SELECT = {
     "LIDC-IDRI-0088": ("faint ground-glass", "hard", lambda t, s, d: t <= 2),
-    "LIDC-IDRI-0590": ("part-solid", "medium", lambda t, s, d: t == 3),
+    "LIDC-IDRI-0828": ("part-solid", "medium", lambda t, s, d: t == 3),  # J13: replaces 0590 (0.625 mm overlapping slices, 67 MB)
     "LIDC-IDRI-0915": ("spiculated", "hard", lambda t, s, d: s >= 4),
     "LIDC-IDRI-0017": ("small solid (subtle)", "hard", lambda t, s, d: t == 5 and d <= 9),
     "LIDC-IDRI-0164": ("solid (easy)", "easy", lambda t, s, d: t == 5 and d >= 12),

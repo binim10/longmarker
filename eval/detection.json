@@ -1,0 +1,149 @@
+[
+ {
+  "case_id": "LIDC-IDRI-0017",
+  "source": "LIDC",
+  "teaching_case": "small solid (subtle)",
+  "size_mm": 8.0,
+  "hit_rank": 1
+ },
+ {
+  "case_id": "LIDC-IDRI-0088",
+  "source": "LIDC",
+  "teaching_case": "faint ground-glass",
+  "size_mm": 7.9,
+  "hit_rank": null
+ },
+ {
+  "case_id": "LIDC-IDRI-0088",
+  "source": "LIDC",
+  "teaching_case": "faint ground-glass",
+  "size_mm": 6.7,
+  "hit_rank": null
+ },
+ {
+  "case_id": "LIDC-IDRI-0164",
+  "source": "LIDC",
+  "teaching_case": "solid (easy)",
+  "size_mm": 15.5,
+  "hit_rank": 3
+ },
+ {
+  "case_id": "LIDC-IDRI-0164",
+  "source": "LIDC",
+  "teaching_case": "solid (easy)",
+  "size_mm": 13.8,
+  "hit_rank": null
+ },
+ {
+  "case_id": "LIDC-IDRI-0828",
+  "source": "LIDC",
+  "teaching_case": "part-solid",
+  "size_mm": 8.1,
+  "hit_rank": null
+ },
+ {
+  "case_id": "LIDC-IDRI-0915",
+  "source": "LIDC",
+  "teaching_case": "spiculated",
+  "size_mm": 9.8,
+  "hit_rank": 1
+ },
+ {
+  "case_id": "RIDER-1129164940_retest",
+  "source": "RIDER",
+  "teaching_case": "large tumour",
+  "size_mm": 56.4,
+  "hit_rank": 1
+ },
+ {
+  "case_id": "RIDER-1129164940_test",
+  "source": "RIDER",
+  "teaching_case": "large tumour",
+  "size_mm": 69.1,
+  "hit_rank": 1
+ },
+ {
+  "case_id": "RIDER-1225316081_retest",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 15.0,
+  "hit_rank": 1
+ },
+ {
+  "case_id": "RIDER-1225316081_test",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 14.6,
+  "hit_rank": 6
+ },
+ {
+  "case_id": "RIDER-1801720707_retest",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 12.3,
+  "hit_rank": 8
+ },
+ {
+  "case_id": "RIDER-1801720707_test",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 12.3,
+  "hit_rank": 10
+ },
+ {
+  "case_id": "RIDER-1867199702_retest",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 16.9,
+  "hit_rank": 7
+ },
+ {
+  "case_id": "RIDER-1867199702_test",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 16.9,
+  "hit_rank": 5
+ },
+ {
+  "case_id": "RIDER-2541949645_retest",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 18.2,
+  "hit_rank": null
+ },
+ {
+  "case_id": "RIDER-2541949645_test",
+  "source": "RIDER",
+  "teaching_case": "follow-up match (small)",
+  "size_mm": 18.7,
+  "hit_rank": null
+ },
+ {
+  "case_id": "RIDER-2655999012_retest",
+  "source": "RIDER",
+  "teaching_case": "large tumour",
+  "size_mm": 29.5,
+  "hit_rank": null
+ },
+ {
+  "case_id": "RIDER-2655999012_test",
+  "source": "RIDER",
+  "teaching_case": "large tumour",
+  "size_mm": 31.1,
+  "hit_rank": null
+ },
+ {
+  "case_id": "RIDER-2669524182_retest",
+  "source": "RIDER",
+  "teaching_case": "large tumour",
+  "size_mm": 42.9,
+  "hit_rank": null
+ },
+ {
+  "case_id": "RIDER-2669524182_test",
+  "source": "RIDER",
+  "teaching_case": "large tumour",
+  "size_mm": 42.0,
+  "hit_rank": null
+ }
+]

@@ -9,27 +9,27 @@ Seeds simulate Daniel's click: an expert-outlined voxel next to the nodule centr
 
 | Case | Type / teaching case | Tool long × short (mm) | Expert long × short (mm) | Δ long (mm) | Tool vol (cm³) | Expert vol (cm³) | Dice | Flagged uncertain | Time (ms) |
 |---|---|---|---|---|---|---|---|---|---|
-| LIDC-IDRI-0017#1 | small solid (subtle) | 6.5 × 5.8 | 8.5 × 7.3 | -2.0 | 0.08 | 0.19 | 0.57 |  | 134 |
-| LIDC-IDRI-0088#1 | faint ground-glass | 8.0 × 7.0 | 8.5 × 7.6 | -0.5 | 0.18 | 0.13 | 0.59 |  | 609 |
-| LIDC-IDRI-0088#2 | faint ground-glass | 10.6 × 6.7 | 6.8 × 5.8 | 3.8 | 0.32 | 0.07 | 0.33 | yes | 687 |
-| LIDC-IDRI-0164#1 | solid (easy) | 14.3 × 12.9 | 16.2 × 14.6 | -1.9 | 0.96 | 1.33 | 0.84 |  | 98 |
-| LIDC-IDRI-0164#2 | solid (easy) | 12.3 × 10.3 | 13.3 × 11.2 | -1.0 | 0.49 | 0.68 | 0.84 |  | 54 |
-| LIDC-IDRI-0590#1 | part-solid | 8.6 × 6.0 | 9.4 × 8.4 | -0.8 | 0.07 | 0.17 | 0.56 |  | 122 |
-| LIDC-IDRI-0915#1 | spiculated | 9.5 × 5.6 | 11.5 × 7.4 | -2.1 | 0.08 | 0.16 | 0.69 |  | 67 |
-| RIDER-1129164940_retest#1 | large tumour | 86.9 × 39.7 | 59.5 × 46.4 | 27.4 | 69.61 | 54.43 | 0.81 | yes | 469 |
-| RIDER-1129164940_test#1 | large tumour | 85.5 × 53.3 | 68.1 × 50.1 | 17.5 | 71.17 | 61.13 | 0.84 | yes | 476 |
-| RIDER-1225316081_retest#1 | follow-up match (small) | 17.5 × 11.8 | 14.0 × 12.1 | 3.4 | 0.51 | 0.56 | 0.77 |  | 121 |
-| RIDER-1225316081_test#1 | follow-up match (small) | 16.4 × 13.5 | 14.5 × 13.5 | 1.9 | 0.48 | 0.60 | 0.76 |  | 128 |
-| RIDER-1801720707_retest#1 | follow-up match (small) | 57.1 × 11.3 | 13.5 × 10.2 | 43.6 | 4.59 | 0.29 | 0.09 | yes | 996 |
-| RIDER-1801720707_test#1 | follow-up match (small) | 12.6 × 10.2 | 12.8 × 9.6 | -0.2 | 0.30 | 0.26 | 0.63 |  | 825 |
-| RIDER-1867199702_retest#1 | follow-up match (small) | 16.9 × 14.3 | 17.7 × 14.8 | -0.7 | 1.59 | 1.63 | 0.85 |  | 433 |
-| RIDER-1867199702_test#1 | follow-up match (small) | 18.2 × 13.7 | 17.4 × 14.8 | 0.8 | 1.68 | 1.66 | 0.83 |  | 402 |
-| RIDER-2541949645_retest#1 | follow-up match (small) | 19.1 × 12.9 | 17.6 × 16.1 | 1.5 | 2.04 | 1.94 | 0.74 |  | 408 |
-| RIDER-2541949645_test#1 | follow-up match (small) | 18.5 × 15.0 | 19.3 × 13.6 | -0.8 | 1.77 | 1.57 | 0.76 |  | 449 |
-| RIDER-2655999012_retest#1 | large tumour | 37.3 × 24.6 | 29.2 × 13.1 | 8.1 | 9.29 | 2.77 | 0.40 | yes | 380 |
-| RIDER-2655999012_test#1 | large tumour | 43.4 × 21.0 | 30.6 × 13.0 | 12.8 | 8.13 | 2.73 | 0.43 | yes | 347 |
-| RIDER-2669524182_retest#1 | large tumour | 80.1 × 46.6 | 42.1 × 33.7 | 37.9 | 90.35 | 22.89 | 0.36 | yes | 1704 |
-| RIDER-2669524182_test#1 | large tumour | 87.5 × 35.0 | 38.7 × 36.9 | 48.8 | 91.48 | 22.08 | 0.35 | yes | 1543 |
+| LIDC-IDRI-0017#1 | small solid (subtle) | 6.5 × 5.8 | 8.5 × 7.3 | -2.0 | 0.08 | 0.19 | 0.57 |  | 129 |
+| LIDC-IDRI-0088#1 | faint ground-glass | 8.0 × 7.0 | 8.5 × 7.6 | -0.5 | 0.18 | 0.13 | 0.59 |  | 588 |
+| LIDC-IDRI-0088#2 | faint ground-glass | 10.6 × 6.7 | 6.8 × 5.8 | 3.8 | 0.32 | 0.07 | 0.33 | yes | 653 |
+| LIDC-IDRI-0164#1 | solid (easy) | 14.3 × 12.9 | 16.2 × 14.6 | -1.9 | 0.96 | 1.33 | 0.84 |  | 93 |
+| LIDC-IDRI-0164#2 | solid (easy) | 12.3 × 10.3 | 13.3 × 11.2 | -1.0 | 0.49 | 0.68 | 0.84 |  | 52 |
+| LIDC-IDRI-0828#1 | part-solid | 8.0 × 6.9 | 9.0 × 7.2 | -1.0 | 0.08 | 0.10 | 0.85 |  | 82 |
+| LIDC-IDRI-0915#1 | spiculated | 9.5 × 5.6 | 11.5 × 7.4 | -2.1 | 0.08 | 0.16 | 0.69 |  | 65 |
+| RIDER-1129164940_retest#1 | large tumour | 86.9 × 39.7 | 59.5 × 46.4 | 27.4 | 69.61 | 54.43 | 0.81 | yes | 450 |
+| RIDER-1129164940_test#1 | large tumour | 85.5 × 53.3 | 68.1 × 50.1 | 17.5 | 71.17 | 61.13 | 0.84 | yes | 458 |
+| RIDER-1225316081_retest#1 | follow-up match (small) | 17.5 × 11.8 | 14.0 × 12.1 | 3.4 | 0.51 | 0.56 | 0.77 |  | 119 |
+| RIDER-1225316081_test#1 | follow-up match (small) | 16.4 × 13.5 | 14.5 × 13.5 | 1.9 | 0.48 | 0.60 | 0.76 |  | 124 |
+| RIDER-1801720707_retest#1 | follow-up match (small) | 57.1 × 11.3 | 13.5 × 10.2 | 43.6 | 4.59 | 0.29 | 0.09 | yes | 972 |
+| RIDER-1801720707_test#1 | follow-up match (small) | 12.6 × 10.2 | 12.8 × 9.6 | -0.2 | 0.30 | 0.26 | 0.63 |  | 800 |
+| RIDER-1867199702_retest#1 | follow-up match (small) | 16.9 × 14.3 | 17.7 × 14.8 | -0.7 | 1.59 | 1.63 | 0.85 |  | 417 |
+| RIDER-1867199702_test#1 | follow-up match (small) | 18.2 × 13.7 | 17.4 × 14.8 | 0.8 | 1.68 | 1.66 | 0.83 |  | 388 |
+| RIDER-2541949645_retest#1 | follow-up match (small) | 19.1 × 12.9 | 17.6 × 16.1 | 1.5 | 2.04 | 1.94 | 0.74 |  | 395 |
+| RIDER-2541949645_test#1 | follow-up match (small) | 18.5 × 15.0 | 19.3 × 13.6 | -0.8 | 1.77 | 1.57 | 0.76 |  | 442 |
+| RIDER-2655999012_retest#1 | large tumour | 37.3 × 24.6 | 29.2 × 13.1 | 8.1 | 9.29 | 2.77 | 0.40 | yes | 366 |
+| RIDER-2655999012_test#1 | large tumour | 43.4 × 21.0 | 30.6 × 13.0 | 12.8 | 8.13 | 2.73 | 0.43 | yes | 334 |
+| RIDER-2669524182_retest#1 | large tumour | 80.1 × 46.6 | 42.1 × 33.7 | 37.9 | 90.35 | 22.89 | 0.36 | yes | 1606 |
+| RIDER-2669524182_test#1 | large tumour | 87.5 × 35.0 | 38.7 × 36.9 | 48.8 | 91.48 | 22.08 | 0.35 | yes | 1454 |
 
 ## Accuracy vs inter-reader spread (LIDC, decision 38)
 
@@ -40,7 +40,7 @@ Seeds simulate Daniel's click: an expert-outlined voxel next to the nodule centr
 | LIDC-IDRI-0088#2 (faint ground-glass) | 3 | 5.8–7.3 | 10.6 | ❌ |
 | LIDC-IDRI-0164#1 (solid (easy)) | 4 | 14.2–17.2 | 14.3 | ✅ |
 | LIDC-IDRI-0164#2 (solid (easy)) | 4 | 12.3–15.0 | 12.3 | ✅ |
-| LIDC-IDRI-0590#1 (part-solid) | 4 | 8.6–10.1 | 8.6 | ✅ |
+| LIDC-IDRI-0828#1 (part-solid) | 4 | 8.1–9.5 | 8.0 | ✅ |
 | LIDC-IDRI-0915#1 (spiculated) | 4 | 9.6–12.1 | 9.5 | ✅ |
 
 **5/7** LIDC nodules: the tool's long axis falls inside the range of the radiologists' own outlines.
@@ -73,12 +73,28 @@ Median |Δ long|: tool **1.3 mm**, expert 1.4 mm (the tumour does not change in 
 
 **7/7** follow-up nodules landed on the right nodule. Note: RIDER pairs are same-day scans, which flatters registration; a months-apart follow-up will be harder.
 
+## Experimental candidate detection (decisions 28–30)
+
+Classical Hessian dot filter, parameters fixed before scoring (`pipeline/detect.py`), top 10 per scan, no training.
+
+| Teaching case / source | Nodules | Found in top 5 | Found in top 10 |
+|---|---|---|---|
+| faint ground-glass | 2 | 0 | 0 |
+| follow-up match (small) | 8 | 2 | 6 |
+| large tumour | 6 | 2 | 2 |
+| part-solid | 1 | 0 | 0 |
+| small solid (subtle) | 1 | 1 | 1 |
+| solid (easy) | 2 | 1 | 1 |
+| spiculated | 1 | 1 | 1 |
+
+**Sensitivity 7/21 at 5 and 11/21 at 10 candidates, ~9.4 false candidates per scan.** It misses ground-glass and large tumours. This does not meet the bar, so per decision 30 it ships as an *experimental*, off-by-default jump list, and the time model does not count on it.
+
 ## Summary
 
 - Nodules measured: 21; flagged uncertain: 38% (these need Daniel's correction).
 - Long axis within max(1.5 mm, 10%) of the expert: 8/21.
 - Off by more than that **and not flagged** (silent errors — the dangerous kind): 5/21: LIDC-IDRI-0017#1 (-2.0 mm), LIDC-IDRI-0164#1 (-1.9 mm), LIDC-IDRI-0915#1 (-2.1 mm), RIDER-1225316081_retest#1 (+3.4 mm), RIDER-1225316081_test#1 (+1.9 mm).
-- Median outline time per click: 408 ms (node; browser is similar).
+- Median outline time per click: 395 ms (node; browser is similar).
 
 ## Time saved — model (not a measurement)
 

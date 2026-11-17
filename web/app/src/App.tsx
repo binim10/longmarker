@@ -41,6 +41,8 @@ export default function App() {
   const [penSize, setPenSize] = useState(3)
   const [msg, setMsg] = useState('')
   const [webglOk, setWebglOk] = useState(true)
+  const [cands, setCands] = useState<{ rank: number; vox: Vec3; score: number; scale_mm: number }[]>([])
+  const [showCands, setShowCands] = useState(false)
   const lastAct = useRef(Date.now())
   const handlers = useRef<{ onClick: (p: Vec3) => void; onEdited: () => void }>({ onClick: () => {}, onEdited: () => {} })
   const sessionRef = useRef(session)
@@ -94,6 +96,8 @@ export default function App() {
     const base = `/cases/${c.case_id}/`
     const m = await (await fetch(base + 'meta.json')).json()
     setMeta(m); metaRef.current = m
+    setCands([])
+    if (m.files?.candidates) fetch(base + m.files.candidates).then(r => r.json()).then(j => setCands(j.candidates || [])).catch(() => {})
     await v.load(base, m.files.refs?.expert ? m.files.refs.expert : (Object.values(m.files.refs || {})[0] as string) ?? null, m.files.lungs, m.files.lobes)
     v.setExpertVisible(showExpert); v.setToolVisible(showTool); v.setWindow(win)
     v.setMode('measure'); setMode('measure')
@@ -306,6 +310,18 @@ export default function App() {
                   {done ? <span className="ok">{done.match_status || 'saved'}</span> : <button onClick={() => findFromBaseline(r)}>Find in this scan →</button>}
                 </div>
               })}
+          </div>
+        )}
+
+        {active && cands.length > 0 && (
+          <div className="card">
+            <label className="chk"><input type="checkbox" checked={showCands} onChange={e => setShowCands(e.target.checked)} /> <b>Candidates (experimental)</b></label>
+            {showCands && <>
+              <p className="muted small">Classical blob filter, top {cands.length} per scan. Finds about half of the nodules in the test set and misses ground-glass; most entries are vessels. Use it as a second look, not as a replacement for your own search.</p>
+              <div className="cands">{cands.map(c => (
+                <button key={c.rank} onClick={() => v?.goToSlice(c.vox[2], c.vox[0], c.vox[1])} title={`score ${c.score.toFixed(0)}`}>#{c.rank} · img {c.vox[2] + 1}</button>
+              ))}</div>
+            </>}
           </div>
         )}
 

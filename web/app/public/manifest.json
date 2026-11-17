@@ -316,18 +316,18 @@
    ]
   },
   {
-   "case_id": "LIDC-IDRI-0590",
+   "case_id": "LIDC-IDRI-0828",
    "source": "LIDC",
-   "patient_id": "LIDC-IDRI-0590",
+   "patient_id": "LIDC-IDRI-0828",
    "timepoint": "baseline",
    "scan_date": "20000101",
-   "series_number": 30726,
+   "series_number": 0,
    "slice_thickness_mm": 1.25,
    "teaching_case": "part-solid",
    "difficulty": "medium",
    "pair": null,
    "tags": [
-    "1 nodule: 9 mm",
+    "1 nodule: 8 mm",
     "4 radiologists"
    ]
   },

@@ -90,3 +90,7 @@ footer a { color: inherit; }
   .app { grid-template-columns: 1fr; grid-template-rows: auto auto 60vh auto auto; grid-template-areas: "h" "c" "m" "p" "f"; }
   .cases { max-height: 200px; }
 }
+.cands { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.cands button { font-size: 12px; padding: 3px 7px; }
+.small { font-size: 12px; margin: 6px 0; }
+.card > .chk { display: flex; align-items: center; gap: 6px; }

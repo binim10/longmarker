@@ -30,7 +30,7 @@ def read_ct(series_dir):
         patient_id=str(ds.PatientID),
         scan_date=str(ds.get("StudyDate", "")),
         series_uid=str(ds.SeriesInstanceUID),
-        series_number=int(ds.get("SeriesNumber", 0)),
+        series_number=int(ds.get("SeriesNumber") or 0),
         slice_thickness_mm=float(ds.get("SliceThickness", 0)),
         kernel=str(ds.get("ConvolutionKernel", "")),
     )

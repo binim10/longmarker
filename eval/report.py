@@ -85,6 +85,24 @@ if mt:
     lines.append(f"\n**{n_ok}/{len(mt)}** follow-up nodules landed on the right nodule. Note: RIDER pairs are same-day scans, "
                  "which flatters registration; a months-apart follow-up will be harder.")
 
+# --- experimental detection (decisions 28-30, J14) ---
+det_p = pathlib.Path(__file__).parent / "detection.json"
+if det_p.exists():
+    D = json.loads(det_p.read_text())
+    lines += ["", "## Experimental candidate detection (decisions 28–30)", "",
+              "Classical Hessian dot filter, parameters fixed before scoring (`pipeline/detect.py`), top 10 per scan, no training.", "",
+              "| Teaching case / source | Nodules | Found in top 5 | Found in top 10 |", "|---|---|---|---|"]
+    groups = {}
+    for r in D:
+        groups.setdefault(r["teaching_case"] or r["source"], []).append(r)
+    for g, rs in sorted(groups.items()):
+        lines.append(f"| {g} | {len(rs)} | {sum(1 for r in rs if r['hit_rank'] and r['hit_rank'] <= 5)} | {sum(1 for r in rs if r['hit_rank'])} |")
+    n = len(D); h5 = sum(1 for r in D if r["hit_rank"] and r["hit_rank"] <= 5); h10 = sum(1 for r in D if r["hit_rank"])
+    scans = len({r["case_id"] for r in D})
+    lines.append(f"\n**Sensitivity {h5}/{n} at 5 and {h10}/{n} at 10 candidates, ~{(10 * scans - h10) / scans:.1f} false candidates per scan.** "
+                 "It misses ground-glass and large tumours. This does not meet the bar, so per decision 30 it ships as an *experimental*, "
+                 "off-by-default jump list, and the time model does not count on it.")
+
 # --- summary + time model ---
 unc = sum(m["uncertain"] for m in ms) / max(1, len(ms))
 good = [d for m, d in dl if abs(d) <= max(1.5, 0.1 * m["expert"]["long"])]
