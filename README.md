@@ -27,6 +27,8 @@ web/app/              React + Vite + NiiVue app; src/lib/measure.ts is the measu
 web/app/eval/eval.ts  runs the same engine offline against the expert outlines
 eval/                 results.json, report.md, thresholds.yaml, timed-study.md
 BRIEF.md              technical brief: how it is built and why
+ANATOMY.md            full dissection of every component, parameter and weakness
+COMPLIANCE.md         Base44 assignment requirements → evidence
 ```
 
 ## Run it
