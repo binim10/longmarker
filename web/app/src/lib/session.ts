@@ -59,7 +59,7 @@ const r1 = (x: number) => Math.round(x * 10) / 10
 export function toCsv(s: Session): string {
   const head = [...SHEET_COLUMNS, ...EXTRA_COLUMNS].join(',')
   const lines = s.rows.map(r => {
-    const minutes = r1((s.seconds[r.caseId] || 0) / 60)
+    const minutes = r1(((s.seconds[r.caseId] || 0) + (s.seconds[r.caseId + '|tool'] || 0) + (s.seconds[r.caseId + '|manual'] || 0)) / 60)
     const notes = [r.uncertain ? 'Uncertain' : '', r.notes].filter(Boolean).join('; ')
     const rec: Record<string, unknown> = {
       ...r, long_axis_mm: r1(r.long_axis_mm), short_axis_mm: r1(r.short_axis_mm), mean_diameter_mm: r1(r.mean_diameter_mm),

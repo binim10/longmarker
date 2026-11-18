@@ -94,3 +94,4 @@ footer a { color: inherit; }
 .cands button { font-size: 12px; padding: 3px 7px; }
 .small { font-size: 12px; margin: 6px 0; }
 .card > .chk { display: flex; align-items: center; gap: 6px; }
+.initials select { margin-left: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }

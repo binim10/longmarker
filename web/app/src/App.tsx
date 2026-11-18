@@ -43,6 +43,11 @@ export default function App() {
   const [webglOk, setWebglOk] = useState(true)
   const [cands, setCands] = useState<{ rank: number; vox: Vec3; score: number; scale_mm: number }[]>([])
   const [showCands, setShowCands] = useState(false)
+  // timed study (decision 43): separate timers per condition; manual condition disables the tool's help
+  const [study, setStudy] = useState<'off' | 'manual' | 'tool'>('off')
+  const studyRef = useRef(study)
+  studyRef.current = study
+  const timerKey = (id: string) => (studyRef.current === 'off' ? id : `${id}|${studyRef.current}`)
   const lastAct = useRef(Date.now())
   const handlers = useRef<{ onClick: (p: Vec3) => void; onEdited: () => void }>({ onClick: () => {}, onEdited: () => {} })
   const sessionRef = useRef(session)
@@ -69,7 +74,8 @@ export default function App() {
     window.addEventListener('pointerdown', bump); window.addEventListener('keydown', bump); window.addEventListener('wheel', bump)
     const t = setInterval(() => {
       if (!active || loading || document.hidden || Date.now() - lastAct.current > 60000) return
-      setSession(s => ({ ...s, seconds: { ...s.seconds, [active.case_id]: (s.seconds[active.case_id] || 0) + 1 } }))
+      const k = timerKey(active.case_id)
+      setSession(s => ({ ...s, seconds: { ...s.seconds, [k]: (s.seconds[k] || 0) + 1 } }))
     }, 1000)
     return () => { clearInterval(t); window.removeEventListener('pointerdown', bump); window.removeEventListener('keydown', bump); window.removeEventListener('wheel', bump) }
   }, [active, loading])
@@ -139,6 +145,7 @@ export default function App() {
     v!.goToSlice(c.m.slice, Math.round(c.m.centroid[0]), Math.round(c.m.centroid[1]))
   }
   function onClick(p: Vec3, lo?: number, keep?: Partial<Current>) {
+    if (studyRef.current === 'manual') { setMsg('Manual condition: outline with the brush (+ Brush), as you would by hand.'); return }
     const t0 = performance.now()
     const g = growAuto(ctData(), lungsData(), vol(), p, lo !== undefined ? { lo } : {})
     if (!g) { setMsg('No nodule-like tissue under the click (within 3 mm). Click inside the nodule, or use the brush.'); return }
@@ -166,6 +173,7 @@ export default function App() {
   // ---- follow-up matching (decisions 24–27) ----
   const baselineRows = useMemo(() => active?.pair?.role === 'follow-up' ? session.rows.filter(r => r.caseId === active.pair!.case_id) : [], [active, session.rows])
   async function findFromBaseline(r: Row) {
+    if (studyRef.current === 'manual') { setMsg('Manual condition: find the nodule yourself.'); return }
     const bm = await (await fetch(`/cases/${r.caseId}/meta.json`)).json()
     const pred = lpsToVox(metaRef.current, applyM(bm.pair.M_to_pair, voxToLps(bm, r.seed)))
     const lo = r.params ? JSON.parse(r.params).lo ?? -450 : -450
@@ -208,6 +216,16 @@ export default function App() {
     if (c) { setCur(c); show(c) }
   }
   function removeRow(id: string) { setSession(s => ({ ...s, rows: s.rows.filter(r => r.id !== id) })) }
+  function exportStudy() {
+    const lines = ['case_id,teaching_case,timepoint,condition,minutes']
+    for (const [k, sec] of Object.entries(session.seconds)) {
+      if (!k.includes('|')) continue
+      const [id, cond] = k.split('|')
+      const c = cases.find(x => x.case_id === id)
+      lines.push([id, c?.teaching_case ?? '', c?.timepoint ?? '', cond, (sec / 60).toFixed(2)].join(','))
+    }
+    download('longmarker_timed_study.csv', lines.join('\n') + '\n')
+  }
   function exportCsv() { download(`longmarker_${new Date().toISOString().slice(0, 10)}.csv`, toCsv(session)) }
   function saveSessionFile() { download('longmarker_session.json', JSON.stringify(session), 'application/json') }
   function loadSessionFile(f: File) {
@@ -224,7 +242,7 @@ export default function App() {
     for (const c of cases) (g[c.source + '|' + c.patient_id] ||= []).push(c)
     return Object.entries(g)
   }, [cases])
-  const secs = active ? session.seconds[active.case_id] || 0 : 0
+  const secs = active ? session.seconds[timerKey(active.case_id)] || 0 : 0
 
   if (!webglOk) return <div className="unsupported">This tool needs a browser with WebGL2 (current Chrome or Edge).</div>
 
@@ -236,6 +254,11 @@ export default function App() {
         <div className="hdr-actions">
           <label className="initials">Initials <input value={session.initials} maxLength={4} onChange={e => setSession(s => ({ ...s, initials: e.target.value.toUpperCase() }))} /></label>
           <button onClick={exportCsv} disabled={!session.rows.length} className="primary">Export CSV ({session.rows.length})</button>
+          <label className="initials" title="Timed study: separate timer per condition (eval/timed-study.md)">Study
+            <select value={study} onChange={e => { setStudy(e.target.value as any); studyRef.current = e.target.value as any; setCur(null); v?.clearDrawing(); if (e.target.value === 'manual') { setMode('add'); v?.setMode('add', penSize) } }}>
+              <option value="off">off</option><option value="manual">manual</option><option value="tool">tool</option>
+            </select></label>
+          {study !== 'off' && <button onClick={exportStudy}>Export study</button>}
           <button onClick={saveSessionFile}>Save session</button>
           <label className="btn">Load session<input type="file" accept=".json" hidden onChange={e => e.target.files?.[0] && loadSessionFile(e.target.files[0])} /></label>
         </div>
@@ -262,7 +285,7 @@ export default function App() {
       <main>
         <div className="toolbar">
           <div className="grp">
-            <button className={mode === 'measure' ? 'on' : ''} onClick={() => { setMode('measure'); v?.setMode('measure') }} title="Click a nodule to outline and measure it">● Click-to-measure</button>
+            <button className={mode === 'measure' ? 'on' : ''} disabled={study === 'manual'} onClick={() => { setMode('measure'); v?.setMode('measure') }} title="Click a nodule to outline and measure it">● Click-to-measure</button>
             <button className={mode === 'add' ? 'on' : ''} disabled={!active} onClick={() => { setMode('add'); v?.setMode('add', penSize) }} title="Paint to add to the outline">＋ Brush</button>
             <button className={mode === 'erase' ? 'on' : ''} disabled={!active} onClick={() => { setMode('erase'); v?.setMode('erase', penSize) }} title="Paint to remove from the outline">− Erase</button>
             <select value={penSize} onChange={e => { const p = +e.target.value; setPenSize(p); if (mode !== 'measure') v?.setMode(mode, p) }} title="Brush size (voxels)">
