@@ -50,6 +50,7 @@ for (const id of readdirSync(ROOT).sort()) {
     const me = exp && metrics(exp.mask, exp.box, v, ct.data)
     const mt = g && metrics(g.mask, g.box, v, ct.data)
     const dice = g && exp ? diceOf(g, exp, v) : null
+    const corr = g && exp ? sliceCorrections(g, exp, v) : null
     const rm = Object.values(readers).map(r => { const c = componentNear(r, v, seed, 80); const m = c && metrics(c.mask, c.box, v, ct.data); return m && { long: +m.longMm.toFixed(2), short: +m.shortMm.toFixed(2), vol: Math.round(m.volumeMm3) } }).filter(Boolean)
     const nod = meta.nodules?.[ni]
     out.push({
@@ -58,11 +59,28 @@ for (const id of readdirSync(ROOT).sort()) {
       tool: mt && { long: +mt.longMm.toFixed(2), short: +mt.shortMm.toFixed(2), vol: Math.round(mt.volumeMm3), solidFrac: +mt.solidFraction.toFixed(2) },
       expert: me && { long: +me.longMm.toFixed(2), short: +me.shortMm.toFixed(2), vol: Math.round(me.volumeMm3) },
       readers: rm, leaked: g?.leaked ?? null, uncertain: !!g && (g.leaked || g.touchesWall || !!g.vesselLike || (!!mt && (mt.longMm > 30 || mt.longMm < 4))), lo: g?.params.lo, open: g?.params.openPx, dice: dice && +dice.toFixed(3),
+      slices_expert: corr?.expertSlices ?? null, slices_to_correct: corr?.toCorrect ?? null,
     })
     if (ni === 0) metas[id] = { meta, seed, vol: mt?.volumeMm3, lo: g?.params.lo }
     const o = out[out.length - 1]
     console.error(id, ni + 1, JSON.stringify(o.tool), JSON.stringify(o.expert), 'dice', o.dice, `${o.ms}ms`, o.uncertain ? 'UNCERTAIN' : '')
   })
+}
+// Correction load (fixed before computing): an axial slice needs a brush correction when
+// tool and expert areas differ by >20% of the larger one (and the larger is >=5 px).
+function sliceCorrections(g: any, exp: any, v: Vol) {
+  const area = (m: Uint8Array, b: any) => {
+    const bd = [b.hi[0] - b.lo[0], b.hi[1] - b.lo[1], b.hi[2] - b.lo[2]]
+    const a = new Map<number, number>()
+    for (let z = 0; z < bd[2]; z++) { let n = 0; for (let y = 0; y < bd[1]; y++) for (let x = 0; x < bd[0]; x++) if (m[x + y * bd[0] + z * bd[0] * bd[1]]) n++; if (n) a.set(z + b.lo[2], n) }
+    return a
+  }
+  const at = area(g.mask, g.box), ae = area(exp.mask, exp.box)
+  const zs = new Set([...at.keys(), ...ae.keys()])
+  let toCorrect = 0
+  for (const z of zs) { const t = at.get(z) || 0, e = ae.get(z) || 0, mx = Math.max(t, e); if (mx >= 5 && Math.abs(t - e) / mx > 0.2) toCorrect++ }
+  void v
+  return { expertSlices: ae.size, toCorrect }
 }
 function diceOf(g: any, exp: any, v: Vol) {
   let inter = 0, a = 0, b = 0

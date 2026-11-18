@@ -143,5 +143,57 @@ lines += ["", "## Time saved — model (not a measurement)", "",
           "The timed study (decision 43) is still to be run by a person: ~10 cases, manual vs tool in alternating order, "
           "using the built-in per-case timer (`minutes` column in the CSV export). Protocol: `eval/timed-study.md`."]
 
+# --- interaction-count estimate (decision 43, agent-run; NOT a human-timed study) ---
+# KLM operator times, Card, Moran & Newell (1980): P point 1.1 s, B button press+release 0.2 s,
+# M mental preparation 1.35 s. Brush correction per slice is not a KLM operator: parameter 5-15 s,
+# plus 0.5 s to scroll to the slice. Manual side = Daniel's own minutes (client data).
+P, B, M, SCROLL = 1.1, 0.2, 1.35, 0.5
+def tool_nodule_s(m, brush):
+    t = (P + B) + M + (P + B)                      # click nodule, review numbers, Save
+    if m["uncertain"]:
+        t += M + (P + B) + P                       # read the reason, adjust threshold slider
+    c = m.get("slices_to_correct") or 0
+    t += c * (brush + SCROLL)                       # brush correction on each disagreeing slice
+    return t
+match_by_fu = {x["followup"]: x for x in mt}
+def scan_minutes(case_ms, followup, brush, find_factor):
+    s_ = sum(tool_nodule_s(m, brush) for m in case_ms) + M   # + one check of the auto-filled row
+    if followup:
+        x = match_by_fu.get(case_ms[0]["case_id"])
+        s_ += (P + B) + M + ((M + 3) if x and x["uncertain"] else 0) - (P + B)  # Find replaces the click; confirm
+        find = 15 * find_factor
+    else:
+        find = 15
+    return find + s_ / 60
+by_case = {}
+for m in ms:
+    by_case.setdefault(m["case_id"], []).append(m)
+rows_t = []
+for cid, cm in sorted(by_case.items()):
+    fu = cm[0]["source"] == "RIDER" and cm[0]["timepoint"] == "retest"
+    n = len(cm)
+    manual = 15 + 3 * n + 4 + (10 if fu else 0)
+    rows_t.append(dict(case=cid, fu=fu, n=n, manual=manual,
+                       lo=scan_minutes(cm, fu, 5, 0.6 if fu else 1), hi=scan_minutes(cm, fu, 15, 0.6 if fu else 1),
+                       hi_nofind=scan_minutes(cm, fu, 15, 1.0), slices=sum((m.get("slices_to_correct") or 0) for m in cm)))
+med = lambda xs: st.median(xs) if xs else float("nan")
+lines += ["", "## Interaction-count estimate (decision 43): agent-run, NOT a human-timed study", "",
+          "What was counted on these exact cases: clicks, reviews, flagged items, and **axial slices needing a brush correction** "
+          "(tool vs expert area differs by >20% of the larger, threshold fixed before computing). Converted with KLM operator times "
+          "(Card, Moran & Newell 1980: point 1.1 s, button 0.2 s, mental 1.35 s); brush correction 5–15 s per slice + 0.5 s scroll. "
+          "Manual side = Daniel's own minutes. Finding (visual search) cannot be modelled this way and stays at Daniel's 15 min; "
+          "the follow-up columns also show the 'Find shortens the search to 60%' assumption separately.", "",
+          "| Case | Nodules | Slices to correct | Manual (Daniel) | Tool, 5 s/slice | Tool, 15 s/slice | Tool, 15 s/slice, no Find-search saving |",
+          "|---|---|---|---|---|---|---|"]
+for r in rows_t:
+    lines.append(f"| {r['case']}{' (follow-up)' if r['fu'] else ''} | {r['n']} | {r['slices']} | {r['manual']:.1f} | {r['lo']:.1f} | {r['hi']:.1f} | {r['hi_nofind']:.1f} |")
+for label, sel in [("Baseline scans", lambda r: not r["fu"]), ("Follow-up scans", lambda r: r["fu"])]:
+    R_ = [r for r in rows_t if sel(r)]
+    mm, l, h, hn = med([r["manual"] for r in R_]), med([r["lo"] for r in R_]), med([r["hi"] for r in R_]), med([r["hi_nofind"] for r in R_])
+    lines.append(f"\n**{label}** (median of {len(R_)}): manual {mm:.1f} min → tool {l:.1f}–{h:.1f} min "
+                 f"(−{1 - h / mm:.0%} to −{1 - l / mm:.0%}); without the Find-search saving {hn:.1f} min (−{1 - hn / mm:.0%}).")
+lines.append("\nRead this as an upper bound on interaction savings for an expert user; the person-timed study (eval/timed-study-cases.md) is still the stronger evidence. "
+             "Large central tumours are the exception: 24–97 slices to correct can make the tool *slower* than Daniel's own measuring.")
+
 (pathlib.Path(__file__).parent / "report.md").write_text("\n".join(lines) + "\n")
 print("\n".join(lines[-12:]))

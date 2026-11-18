@@ -9,27 +9,27 @@ Seeds simulate Daniel's click: an expert-outlined voxel next to the nodule centr
 
 | Case | Type / teaching case | Tool long × short (mm) | Expert long × short (mm) | Δ long (mm) | Tool vol (cm³) | Expert vol (cm³) | Dice | Flagged uncertain | Time (ms) |
 |---|---|---|---|---|---|---|---|---|---|
-| LIDC-IDRI-0017#1 | small solid (subtle) | 6.5 × 5.8 | 8.5 × 7.3 | -2.0 | 0.08 | 0.19 | 0.57 |  | 129 |
-| LIDC-IDRI-0088#1 | faint ground-glass | 8.0 × 7.0 | 8.5 × 7.6 | -0.5 | 0.18 | 0.13 | 0.59 |  | 588 |
-| LIDC-IDRI-0088#2 | faint ground-glass | 10.6 × 6.7 | 6.8 × 5.8 | 3.8 | 0.32 | 0.07 | 0.33 | yes | 653 |
-| LIDC-IDRI-0164#1 | solid (easy) | 14.3 × 12.9 | 16.2 × 14.6 | -1.9 | 0.96 | 1.33 | 0.84 |  | 93 |
-| LIDC-IDRI-0164#2 | solid (easy) | 12.3 × 10.3 | 13.3 × 11.2 | -1.0 | 0.49 | 0.68 | 0.84 |  | 52 |
-| LIDC-IDRI-0828#1 | part-solid | 8.0 × 6.9 | 9.0 × 7.2 | -1.0 | 0.08 | 0.10 | 0.85 |  | 82 |
-| LIDC-IDRI-0915#1 | spiculated | 9.5 × 5.6 | 11.5 × 7.4 | -2.1 | 0.08 | 0.16 | 0.69 |  | 65 |
-| RIDER-1129164940_retest#1 | large tumour | 86.9 × 39.7 | 59.5 × 46.4 | 27.4 | 69.61 | 54.43 | 0.81 | yes | 450 |
-| RIDER-1129164940_test#1 | large tumour | 85.5 × 53.3 | 68.1 × 50.1 | 17.5 | 71.17 | 61.13 | 0.84 | yes | 458 |
-| RIDER-1225316081_retest#1 | follow-up match (small) | 17.5 × 11.8 | 14.0 × 12.1 | 3.4 | 0.51 | 0.56 | 0.77 |  | 119 |
-| RIDER-1225316081_test#1 | follow-up match (small) | 16.4 × 13.5 | 14.5 × 13.5 | 1.9 | 0.48 | 0.60 | 0.76 |  | 124 |
-| RIDER-1801720707_retest#1 | follow-up match (small) | 57.1 × 11.3 | 13.5 × 10.2 | 43.6 | 4.59 | 0.29 | 0.09 | yes | 972 |
-| RIDER-1801720707_test#1 | follow-up match (small) | 12.6 × 10.2 | 12.8 × 9.6 | -0.2 | 0.30 | 0.26 | 0.63 |  | 800 |
-| RIDER-1867199702_retest#1 | follow-up match (small) | 16.9 × 14.3 | 17.7 × 14.8 | -0.7 | 1.59 | 1.63 | 0.85 |  | 417 |
-| RIDER-1867199702_test#1 | follow-up match (small) | 18.2 × 13.7 | 17.4 × 14.8 | 0.8 | 1.68 | 1.66 | 0.83 |  | 388 |
-| RIDER-2541949645_retest#1 | follow-up match (small) | 19.1 × 12.9 | 17.6 × 16.1 | 1.5 | 2.04 | 1.94 | 0.74 |  | 395 |
-| RIDER-2541949645_test#1 | follow-up match (small) | 18.5 × 15.0 | 19.3 × 13.6 | -0.8 | 1.77 | 1.57 | 0.76 |  | 442 |
-| RIDER-2655999012_retest#1 | large tumour | 37.3 × 24.6 | 29.2 × 13.1 | 8.1 | 9.29 | 2.77 | 0.40 | yes | 366 |
-| RIDER-2655999012_test#1 | large tumour | 43.4 × 21.0 | 30.6 × 13.0 | 12.8 | 8.13 | 2.73 | 0.43 | yes | 334 |
-| RIDER-2669524182_retest#1 | large tumour | 80.1 × 46.6 | 42.1 × 33.7 | 37.9 | 90.35 | 22.89 | 0.36 | yes | 1606 |
-| RIDER-2669524182_test#1 | large tumour | 87.5 × 35.0 | 38.7 × 36.9 | 48.8 | 91.48 | 22.08 | 0.35 | yes | 1454 |
+| LIDC-IDRI-0017#1 | small solid (subtle) | 6.5 × 5.8 | 8.5 × 7.3 | -2.0 | 0.08 | 0.19 | 0.57 |  | 139 |
+| LIDC-IDRI-0088#1 | faint ground-glass | 8.0 × 7.0 | 8.5 × 7.6 | -0.5 | 0.18 | 0.13 | 0.59 |  | 640 |
+| LIDC-IDRI-0088#2 | faint ground-glass | 10.6 × 6.7 | 6.8 × 5.8 | 3.8 | 0.32 | 0.07 | 0.33 | yes | 700 |
+| LIDC-IDRI-0164#1 | solid (easy) | 14.3 × 12.9 | 16.2 × 14.6 | -1.9 | 0.96 | 1.33 | 0.84 |  | 97 |
+| LIDC-IDRI-0164#2 | solid (easy) | 12.3 × 10.3 | 13.3 × 11.2 | -1.0 | 0.49 | 0.68 | 0.84 |  | 57 |
+| LIDC-IDRI-0828#1 | part-solid | 8.0 × 6.9 | 9.0 × 7.2 | -1.0 | 0.08 | 0.10 | 0.85 |  | 85 |
+| LIDC-IDRI-0915#1 | spiculated | 9.5 × 5.6 | 11.5 × 7.4 | -2.1 | 0.08 | 0.16 | 0.69 |  | 68 |
+| RIDER-1129164940_retest#1 | large tumour | 86.9 × 39.7 | 59.5 × 46.4 | 27.4 | 69.61 | 54.43 | 0.81 | yes | 488 |
+| RIDER-1129164940_test#1 | large tumour | 85.5 × 53.3 | 68.1 × 50.1 | 17.5 | 71.17 | 61.13 | 0.84 | yes | 487 |
+| RIDER-1225316081_retest#1 | follow-up match (small) | 17.5 × 11.8 | 14.0 × 12.1 | 3.4 | 0.51 | 0.56 | 0.77 |  | 126 |
+| RIDER-1225316081_test#1 | follow-up match (small) | 16.4 × 13.5 | 14.5 × 13.5 | 1.9 | 0.48 | 0.60 | 0.76 |  | 136 |
+| RIDER-1801720707_retest#1 | follow-up match (small) | 57.1 × 11.3 | 13.5 × 10.2 | 43.6 | 4.59 | 0.29 | 0.09 | yes | 1030 |
+| RIDER-1801720707_test#1 | follow-up match (small) | 12.6 × 10.2 | 12.8 × 9.6 | -0.2 | 0.30 | 0.26 | 0.63 |  | 859 |
+| RIDER-1867199702_retest#1 | follow-up match (small) | 16.9 × 14.3 | 17.7 × 14.8 | -0.7 | 1.59 | 1.63 | 0.85 |  | 435 |
+| RIDER-1867199702_test#1 | follow-up match (small) | 18.2 × 13.7 | 17.4 × 14.8 | 0.8 | 1.68 | 1.66 | 0.83 |  | 405 |
+| RIDER-2541949645_retest#1 | follow-up match (small) | 19.1 × 12.9 | 17.6 × 16.1 | 1.5 | 2.04 | 1.94 | 0.74 |  | 419 |
+| RIDER-2541949645_test#1 | follow-up match (small) | 18.5 × 15.0 | 19.3 × 13.6 | -0.8 | 1.77 | 1.57 | 0.76 |  | 460 |
+| RIDER-2655999012_retest#1 | large tumour | 37.3 × 24.6 | 29.2 × 13.1 | 8.1 | 9.29 | 2.77 | 0.40 | yes | 394 |
+| RIDER-2655999012_test#1 | large tumour | 43.4 × 21.0 | 30.6 × 13.0 | 12.8 | 8.13 | 2.73 | 0.43 | yes | 351 |
+| RIDER-2669524182_retest#1 | large tumour | 80.1 × 46.6 | 42.1 × 33.7 | 37.9 | 90.35 | 22.89 | 0.36 | yes | 1785 |
+| RIDER-2669524182_test#1 | large tumour | 87.5 × 35.0 | 38.7 × 36.9 | 48.8 | 91.48 | 22.08 | 0.35 | yes | 1587 |
 
 ## Accuracy vs inter-reader spread (LIDC, decision 38)
 
@@ -94,7 +94,7 @@ Classical Hessian dot filter, parameters fixed before scoring (`pipeline/detect.
 - Nodules measured: 21; flagged uncertain: 38% (these need Daniel's correction).
 - Long axis within max(1.5 mm, 10%) of the expert: 8/21.
 - Off by more than that **and not flagged** (silent errors — the dangerous kind): 5/21: LIDC-IDRI-0017#1 (-2.0 mm), LIDC-IDRI-0164#1 (-1.9 mm), LIDC-IDRI-0915#1 (-2.1 mm), RIDER-1225316081_retest#1 (+3.4 mm), RIDER-1225316081_test#1 (+1.9 mm).
-- Median outline time per click: 395 ms (node; browser is similar).
+- Median outline time per click: 419 ms (node; browser is similar).
 
 ## Time saved — model (not a measurement)
 
@@ -111,3 +111,35 @@ Inputs: Daniel's own minutes per step, 1.5 nodules per scan, and the rates measu
 **Sensitivity:** the biggest single saving is the assumption that *Find* shortens the follow-up search to 60% of 15 min. Without it (finding stays 15 min) the follow-up total is 20.2 min (−40%). So 'roughly halved' depends on that assumption; the timed study must confirm it.
 
 The timed study (decision 43) is still to be run by a person: ~10 cases, manual vs tool in alternating order, using the built-in per-case timer (`minutes` column in the CSV export). Protocol: `eval/timed-study.md`.
+
+## Interaction-count estimate (decision 43): agent-run, NOT a human-timed study
+
+What was counted on these exact cases: clicks, reviews, flagged items, and **axial slices needing a brush correction** (tool vs expert area differs by >20% of the larger, threshold fixed before computing). Converted with KLM operator times (Card, Moran & Newell 1980: point 1.1 s, button 0.2 s, mental 1.35 s); brush correction 5–15 s per slice + 0.5 s scroll. Manual side = Daniel's own minutes. Finding (visual search) cannot be modelled this way and stays at Daniel's 15 min; the follow-up columns also show the 'Find shortens the search to 60%' assumption separately.
+
+| Case | Nodules | Slices to correct | Manual (Daniel) | Tool, 5 s/slice | Tool, 15 s/slice | Tool, 15 s/slice, no Find-search saving |
+|---|---|---|---|---|---|---|
+| LIDC-IDRI-0017 | 1 | 5 | 22.0 | 15.5 | 16.4 | 16.4 |
+| LIDC-IDRI-0088 | 2 | 18 | 25.0 | 16.9 | 19.9 | 19.9 |
+| LIDC-IDRI-0164 | 2 | 16 | 25.0 | 16.6 | 19.3 | 19.3 |
+| LIDC-IDRI-0828 | 1 | 2 | 22.0 | 15.3 | 15.6 | 15.6 |
+| LIDC-IDRI-0915 | 1 | 4 | 22.0 | 15.5 | 16.1 | 16.1 |
+| RIDER-1129164940_retest (follow-up) | 1 | 34 | 32.0 | 12.3 | 18.0 | 24.0 |
+| RIDER-1129164940_test | 1 | 29 | 22.0 | 17.8 | 22.6 | 22.6 |
+| RIDER-1225316081_retest (follow-up) | 1 | 3 | 32.0 | 9.5 | 10.0 | 16.0 |
+| RIDER-1225316081_test | 1 | 3 | 22.0 | 15.4 | 15.9 | 15.9 |
+| RIDER-1801720707_retest (follow-up) | 1 | 28 | 32.0 | 11.8 | 16.5 | 22.5 |
+| RIDER-1801720707_test | 1 | 5 | 22.0 | 15.5 | 16.4 | 16.4 |
+| RIDER-1867199702_retest (follow-up) | 1 | 5 | 32.0 | 9.6 | 10.5 | 16.5 |
+| RIDER-1867199702_test | 1 | 6 | 22.0 | 15.6 | 16.6 | 16.6 |
+| RIDER-2541949645_retest (follow-up) | 1 | 6 | 32.0 | 9.7 | 10.7 | 16.7 |
+| RIDER-2541949645_test | 1 | 9 | 22.0 | 15.9 | 17.4 | 17.4 |
+| RIDER-2655999012_retest (follow-up) | 1 | 26 | 32.0 | 11.6 | 15.9 | 21.9 |
+| RIDER-2655999012_test | 1 | 24 | 22.0 | 17.4 | 21.4 | 21.4 |
+| RIDER-2669524182_retest (follow-up) | 1 | 97 | 32.0 | 18.1 | 34.3 | 40.3 |
+| RIDER-2669524182_test | 1 | 97 | 22.0 | 24.0 | 40.2 | 40.2 |
+
+**Baseline scans** (median of 12): manual 22.0 min → tool 15.8–17.0 min (−23% to −28%); without the Find-search saving 17.0 min (−23%).
+
+**Follow-up scans** (median of 7): manual 32.0 min → tool 11.6–15.9 min (−50% to −64%); without the Find-search saving 21.9 min (−32%).
+
+Read this as an upper bound on interaction savings for an expert user; the person-timed study (eval/timed-study-cases.md) is still the stronger evidence. Large central tumours are the exception: 24–97 slices to correct can make the tool *slower* than Daniel's own measuring.
