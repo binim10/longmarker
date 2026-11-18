@@ -1,9 +1,20 @@
 // NiiVue wrapper: axial viewer, overlays, drawing bitmap <-> file-order masks.
 import { Niivue } from '@niivue/niivue'
 import type { Box, Vec3 } from './measure'
+import { getBuffer } from './fetchCache'
 
 export const LABEL_TOOL = 2 // green in NiiVue draw LUT
 export const LABEL_AXIS = 3 // blue: caliper lines
+
+export type WindowPreset = 'lung' | 'mediastinum'
+const WINDOWS: Record<WindowPreset, [number, number]> = { lung: [-1350, 150], mediastinum: [-160, 240] }
+
+export interface CaseFiles { ct: string; expert: string | null; lungs: string; lobes: string | null }
+/** The volume files a case's meta.json points at (expert outline, else the first reader's). */
+export function caseFiles(meta: any): CaseFiles {
+  const refs = meta.files.refs || {}
+  return { ct: meta.files.ct ?? 'ct.nii.gz', expert: refs.expert ?? (Object.values(refs)[0] as string) ?? null, lungs: meta.files.lungs, lobes: meta.files.lobes ?? null }
+}
 
 export class Viewer {
   nv: Niivue
@@ -35,30 +46,34 @@ export class Viewer {
     })
   }
 
-  async load(base: string, expertFile: string | null, lungsFile: string, lobesFile: string | null) {
-    const vols: any[] = [{ url: base + 'ct.nii.gz', colormap: 'gray' }]
-    if (expertFile) vols.push({ url: base + expertFile, colormap: 'warm', opacity: 0.35, cal_min: 0.5, cal_max: 1 })
-    vols.push({ url: base + lungsFile, colormap: 'gray', opacity: 0 })
-    if (lobesFile) vols.push({ url: base + lobesFile, colormap: 'gray', opacity: 0 })
-    await this.nv.loadVolumes(vols)
+  /** Load a case with its display state applied up front, so the CT is uploaded to the GPU once. */
+  async load(base: string, f: CaseFiles, o: { win: WindowPreset; showExpert: boolean; showTool: boolean }) {
+    const vol = async (file: string, opts: object) => ({ url: await getBuffer(base + file), name: file, ...opts })
+    const [lo, hi] = WINDOWS[o.win]
+    const vols = await Promise.all([
+      vol(f.ct, { colormap: 'gray', cal_min: lo, cal_max: hi }),
+      ...(f.expert ? [vol(f.expert, { colormap: 'warm', opacity: o.showExpert ? 0.35 : 0, cal_min: 0.5, cal_max: 1 })] : []),
+      vol(f.lungs, { colormap: 'gray', opacity: 0 }),
+      ...(f.lobes ? [vol(f.lobes, { colormap: 'gray', opacity: 0 })] : []),
+    ])
+    await this.nv.loadVolumes(vols as any)
     this.nv.setSliceType(this.nv.sliceTypeAxial)
     const h: any = this.nv.volumes[0].hdr
     this.dims = [h.dims[1], h.dims[2], h.dims[3]]
     this.spacing = [h.pixDims[1], h.pixDims[2], h.pixDims[3]]
     this.nv.createEmptyDrawing()
-    this.nv.setDrawOpacity(0.5)
+    this.setToolVisible(o.showTool)
     this.buildLut()
-    this.setWindow('lung')
     this.setMode('measure')
   }
 
   volumeData(i: number): any { return (this.nv.volumes[i] as any)?.img }
   get expertIndex() { return this.nv.volumes.length >= 3 && (this.nv.volumes[1] as any).colormap === 'warm' ? 1 : -1 }
 
-  setWindow(w: 'lung' | 'mediastinum') {
+  setWindow(w: WindowPreset) {
     const v: any = this.nv.volumes[0]
     if (!v) return
-    if (w === 'lung') { v.cal_min = -1350; v.cal_max = 150 } else { v.cal_min = -160; v.cal_max = 240 }
+    ;[v.cal_min, v.cal_max] = WINDOWS[w]
     this.nv.updateGLVolume()
   }
   setExpertVisible(on: boolean) { if (this.expertIndex > 0) this.nv.setOpacity(this.expertIndex, on ? 0.35 : 0) }
