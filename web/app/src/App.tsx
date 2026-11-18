@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
-import { Viewer, rleDecode, rleEncode } from './lib/viewer'
+import { Viewer, caseFiles, rleDecode, rleEncode } from './lib/viewer'
+import { getBuffer, getJson, keepOnly } from './lib/fetchCache'
 import {
   ALGO_VERSION, DEFAULT_SOLID_HU, applyM, componentNear, findInFollowUp, growAuto, lobeAt, lpsToVox, metrics,
   suggestType, voxToLps, type Box, type GrowResult, type Metrics, type Vec3,
@@ -19,6 +20,15 @@ interface Current {
 }
 
 const fmt = (x: number | undefined, d = 1) => (x === undefined || Number.isNaN(x) ? '–' : x.toFixed(d))
+/** Warm every file a case needs (same cache the viewer reads from), so opening it costs no network. */
+function prefetchCase(id: string) {
+  const base = `/cases/${id}/`
+  getJson(base + 'meta.json').then(m => {
+    const f = caseFiles(m)
+    for (const file of [f.ct, f.expert, f.lungs, f.lobes]) if (file) getBuffer(base + file).catch(() => {})
+    if (m.files?.candidates) getJson(base + m.files.candidates).catch(() => {})
+  }).catch(() => {})
+}
 const caseLabel = (c: CaseItem) => c.source === 'RIDER'
   ? `${c.patient_id.replace('RIDER-', 'R-')} · ${c.timepoint === 'test' ? 'baseline (test)' : 'follow-up (retest)'}`
   : `${c.patient_id} · ${c.timepoint || 'scan'}`
@@ -64,7 +74,11 @@ export default function App() {
     const gl = document.createElement('canvas').getContext('webgl2')
     if (!gl) { setWebglOk(false); return }
     fetch('/manifest.json').then(r => r.json()).then(m => setCases(m.cases))
-    if (canvasRef.current && !viewerRef.current) viewerRef.current = new Viewer(canvasRef.current)
+    if (canvasRef.current && !viewerRef.current) {
+      const nv = viewerRef.current = new Viewer(canvasRef.current)
+      nv.onClickVox = p => handlers.current.onClick(p)
+      nv.onEdited = () => handlers.current.onEdited()
+    }
   }, [])
   useEffect(() => { saveSession(session) }, [session])
 
@@ -100,21 +114,20 @@ export default function App() {
     setCur(null); setActive(c); activeRef.current = c; setMsg('')
     setLoading('Loading scan…'); const t0 = performance.now()
     const base = `/cases/${c.case_id}/`
-    const m = await (await fetch(base + 'meta.json')).json()
+    // next case is prefetched below so Daniel does not wait (advisor: load must stay out of the timing);
+    // keep only this case's and the next case's volume buffers in memory
+    const nx = cases[cases.findIndex(x => x.case_id === c.case_id) + 1]
+    keepOnly([base, ...(nx ? [`/cases/${nx.case_id}/`] : [])])
+    getBuffer(base + 'ct.nii.gz').catch(() => {}) // the big file: start it alongside meta.json
+    const m = await getJson(base + 'meta.json')
     setMeta(m); metaRef.current = m
     setCands([])
-    if (m.files?.candidates) fetch(base + m.files.candidates).then(r => r.json()).then(j => setCands(j.candidates || [])).catch(() => {})
-    await v.load(base, m.files.refs?.expert ? m.files.refs.expert : (Object.values(m.files.refs || {})[0] as string) ?? null, m.files.lungs, m.files.lobes)
-    v.setExpertVisible(showExpert); v.setToolVisible(showTool); v.setWindow(win)
-    v.setMode('measure'); setMode('measure')
-    v.onClickVox = p => handlers.current.onClick(p)
-    v.onEdited = () => handlers.current.onEdited()
+    if (m.files?.candidates) getJson(base + m.files.candidates).then(j => setCands(j.candidates || [])).catch(() => {})
+    await v.load(base, caseFiles(m), { win, showExpert, showTool })
+    setMode('measure')
     const ms = performance.now() - t0
     setLoadMs(ms); setLoading(''); lastAct.current = Date.now()
-    // prefetch the next case so Daniel does not wait (advisor: load must stay out of the timing)
-    const i = cases.findIndex(x => x.case_id === c.case_id)
-    const nx = cases[i + 1]
-    if (nx) fetch(`/cases/${nx.case_id}/ct.nii.gz`).catch(() => {})
+    if (nx) prefetchCase(nx.case_id)
   }
 
   // ---- measurement ----
@@ -174,7 +187,7 @@ export default function App() {
   const baselineRows = useMemo(() => active?.pair?.role === 'follow-up' ? session.rows.filter(r => r.caseId === active.pair!.case_id) : [], [active, session.rows])
   async function findFromBaseline(r: Row) {
     if (studyRef.current === 'manual') { setMsg('Manual condition: find the nodule yourself.'); return }
-    const bm = await (await fetch(`/cases/${r.caseId}/meta.json`)).json()
+    const bm = await getJson(`/cases/${r.caseId}/meta.json`)
     const pred = lpsToVox(metaRef.current, applyM(bm.pair.M_to_pair, voxToLps(bm, r.seed)))
     const lo = r.params ? JSON.parse(r.params).lo ?? -450 : -450
     const f = findInFollowUp(ctData(), lungsData(), vol(), pred, r.volume_mm3, lo)
