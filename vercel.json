@@ -1,0 +1,6 @@
+{
+  "framework": null,
+  "installCommand": "cd web/app && npm ci",
+  "buildCommand": "cd web/app && npm test && npm run lint && python3 ../../scripts/restore-cases.py && npm run build",
+  "outputDirectory": "web/app/dist"
+}

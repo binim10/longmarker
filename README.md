@@ -2,12 +2,12 @@
 
 **Live:** https://longmarker.vercel.app · **Research use only, not for clinical decisions.**
 
-A web tool built for the Thoracic Oncology Research Lab (Harbor Medical Center, simulated) as part of the Base44 FDE take-home. It cuts the manual time spent finding, outlining, measuring, matching and recording lung nodules on CT. Daniel stays in control of every number.
+A web tool built for the Thoracic Oncology Research Lab (Harbor Medical Center, simulated) as part of the Base44 FDE take-home. The pilot targets time spent outlining, matching and recording lung nodules. The time model estimates a 57% reduction for follow-ups if visual search falls from 15 to 9 minutes. Human timing is pending. Daniel stays in control of every number.
 
 ## What it does
-- **Click to measure.** One click inside a nodule produces a 3D outline. The tool reports the long and short axis (edge to edge, on the axial slice with the largest area), mean diameter, volume, a suggested solid component and the lobe, in under a second.
+- **Click to measure.** One click inside a nodule produces a 3D outline. The tool reports the long and short axis (edge to edge, on the axial slice with the largest area), mean diameter, volume, a suggested solid component and the lobe, with a median outline time of about 0.4 seconds in the offline evaluation.
 - **Trust.** On the public data, the tool's outline is shown next to the expert outline, and their numbers sit side by side.
-- **Correct.** You can fix the result with the edge-threshold slider, the brush, erase, or undo. Every saved value records its provenance: `tool`, `edited` or `manual`.
+- **Correct.** You can fix the result with the edge-threshold slider, the brush, erase, or undo. Each saved row records its provenance: `tool`, `edited` or `manual`.
 - **Uncertain flag.** Raised for leaks, vessel-shaped outlines, chest-wall contact and very small nodules.
 - **Follow-up.** On a follow-up scan, *Find in this scan* maps each baseline nodule through the precomputed registration, snaps it to the most plausible blob within 15 mm, and marks the result as matched or uncertain.
 - **Export.** CSV in Daniel's exact sheet columns, plus `provenance, algo_version, params`. The per-case timer fills the `minutes` column.
@@ -31,9 +31,40 @@ ANATOMY.md            full dissection of every component, parameter and weakness
 COMPLIANCE.md         Base44 assignment requirements → evidence
 ```
 
-## Run it
+## Run the shipped pilot
+
+From the repository root, use Python 3.9+ and Node 22.22.3 with npm. The default demo uses the same 19 public scans as the hosted pilot. Allow about 2 GB for the scan files and their built copy, plus dependencies.
+
 ```bash
-# 1) build the case data (needs ~3 GB free disk and network access to TCIA)
+python3 scripts/restore-cases.py
+cd web/app
+npm ci
+npm run dev
+```
+
+The restore command reads the file list in `scripts/cases.sha256`, downloads missing or changed assets from the public pilot, checks every SHA-256 digest and replaces each completed file atomically. A new checkout needs network access or a local copy of the matching data. Keep a copy of prepared cases when changing hosting or datasets.
+
+## Tests and deployment
+
+From `web/app`, run `npm test` for deterministic checks of volume, physical coordinates, CSV output and concurrent fetch retries. They use synthetic inputs and require no downloads. Run `npm run lint` and `npm run build` for static checks, TypeScript and production bundling. Lint currently reports warnings.
+
+GitHub Actions runs these commands on pushes and pull requests. The Vercel Git integration builds the repository from its root using `vercel.json`. Its own build gate repeats the tests and lint, verifies the complete demo dataset, then type-checks and builds the app. Successful production-branch builds update [the pilot](https://longmarker.vercel.app/). For recovery, promote a previously verified deployment in Vercel. The separate [submission portal](https://longmarker-portal.vercel.app/) has its own deployment.
+
+## Research evaluation
+
+After restoring the cases, run the commands below from `web/app`. Review the JSON diff before replacing a stored baseline. The browser and evaluation share the measurement engine. Find overlapped the expert mask by at least one voxel in 7 of 7 same-day pairs. Four matches needed confirmation. Eight of 21 long axes met the expert tolerance. Five out-of-tolerance results went unflagged. See [the evaluation report](eval/report.md) for the denominators, exceptions and timing model.
+
+```bash
+npx tsx eval/eval.ts > /tmp/longmarker-results.json
+# To regenerate the report from the committed results:
+python3 ../../eval/report.py
+```
+
+## Regenerate the public data from TCIA
+
+The offline Python pipeline uses the TCIA API, lungmask and registration. For a matching copy of the shipped benchmark use the checksum-verified restore command above. For experiments, run the preparation steps below from the repository root.
+
+```bash
 cd pipeline
 uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python pydicom SimpleITK numpy scipy scikit-image requests nibabel pandas pylidc "setuptools<70" lungmask
@@ -41,15 +72,4 @@ uv pip install --python .venv/bin/python pydicom SimpleITK numpy scipy scikit-im
 .venv/bin/python prepare_lidc.py
 .venv/bin/python tag_cases.py
 .venv/bin/python -c "from common import build_manifest; build_manifest('../web/app/public/cases')"
-
-# 2) run the app
-cd ../web/app && npm install && npm run dev
-
-# 3) evaluate (writes eval/results.json), then build the report
-npx tsx eval/eval.ts > ../../eval/results.json && python3 ../../eval/report.py
-
-# 4) deploy (static). Deploy a copy outside the git repo: Vercel blocks CLI deploys
-#    whose commit author is not a team member (junctions J11)
-npx vite build && rsync -a --delete dist/ /tmp/longmarker-dist/ && cd /tmp/longmarker-dist && npx vercel deploy --prod
 ```
-Case data is not committed, because it is regenerable and large. `torch` (through lungmask) is needed only in the offline pipeline, never in the browser.

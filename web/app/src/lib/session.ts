@@ -1,5 +1,5 @@
 // Session store (browser) + CSV export in Daniel's exact sheet columns. Decisions 12, 33–36, 53.
-import { ALGO_VERSION, type Box } from './measure'
+import { ALGO_VERSION, type Box } from './measure.ts'
 
 export type Provenance = 'tool' | 'edited' | 'manual'
 export interface Row {
