@@ -94,12 +94,12 @@ export default function App() {
     const bump = () => { lastAct.current = Date.now() }
     window.addEventListener('pointerdown', bump); window.addEventListener('keydown', bump); window.addEventListener('wheel', bump)
     const t = setInterval(() => {
-      if (!active || loading || document.hidden || Date.now() - lastAct.current > 60000) return
+      if (!active || loading || loadError || document.hidden || Date.now() - lastAct.current > 60000) return
       const k = timerKey(active.case_id)
       setSession(s => ({ ...s, seconds: { ...s.seconds, [k]: (s.seconds[k] || 0) + 1 } }))
     }, 1000)
     return () => { clearInterval(t); window.removeEventListener('pointerdown', bump); window.removeEventListener('keydown', bump); window.removeEventListener('wheel', bump) }
-  }, [active, loading])
+  }, [active, loading, loadError])
 
   const v = viewerRef.current
   const vol = () => ({ dims: v!.dims, spacing: v!.spacing })

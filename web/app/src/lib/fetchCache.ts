@@ -7,7 +7,9 @@ function remember<T>(map: Map<string, Promise<T>>, url: string, load: (r: Respon
   let p = map.get(url)
   if (!p) {
     p = fetch(url).then(r => { if (!r.ok) throw new Error(`${url}: ${r.status}`); return load(r) })
-    p.catch(() => map.delete(url)) // let a later call retry
+    p.catch(() => {
+      if (map.get(url) === p) map.delete(url) // keep any newer retry in the cache
+    })
     map.set(url, p)
   }
   return p
