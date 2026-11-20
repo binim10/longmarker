@@ -1,274 +1,95 @@
-# LongMarker: אפיון פיילוט (DDD)
+# LongMarker pilot decisions
 
-כלי למדידת קשריות ריאה עבור Thoracic Oncology Research Lab, Harbor Medical Center (סימולציה).
-מקור: שיחות עם Dr. Naomi Hart ועם Dr. Daniel Reyes, ומסמך המטלה של Base44.
-לשימוש מחקרי בלבד. הכלי לא טוען שום טענה קלינית.
+These decisions come from the Base44 assignment and conversations with Dr. Naomi Hart and Dr. Daniel Reyes at the simulated Thoracic Oncology Research Lab, Harbor Medical Center. The design discussion considered the perspectives of the director, researcher, radiologist, ML and frontend engineers, FDE, evaluator and data steward. Research use only.
 
-משתתפי הדיון שעליו מבוססות ההחלטות: מנהלת המחקר, החוקר שמודד, רדיולוג ספקן, מהנדס ML, מהנדס פרונטאנד, ה-FDE, מעריך מטעם Base44, ואחראי דאטה ורישוי.
+## Goal and scope
 
----
+1. Aim to halve Daniel’s time per scan while maintaining accuracy. Naomi defined success in terms of manual work saved and measurement quality.
+2. Keep Daniel responsible for accepting or correcting every proposed measurement. An unchecked error can propagate through an entire growth analysis.
+3. Demonstrate time savings and measurement quality. Malignancy prediction and clinical decisions fall outside the research assignment.
+4. Build in order of expected benefit and feasibility: recording, measurement and volume, follow-up matching, then discovery. Most follow-ups involve one or two known nodules.
 
-## מטרה והיקף
+## Users and workflow
 
-החלטה 1
-החלטנו שמטרת הפיילוט היא לקצר בערך בחצי את זמן העבודה של דניאל על כל סריקה, בלי שום ירידה בדיוק.
-למה: כך נאומי הגדירה הצלחה, וכך Base44 מודדים את המטלה: כמה זמן ידני נחסך בלי לפגוע באיכות.
+5. Design for Daniel’s daily use and for Naomi to open the demo independently. She asked for something “that I can open and use myself.”
+6. Follow Daniel’s sequence: open, locate, measure, match to baseline and record. This also gives the timing comparison a common workflow.
+7. Measure on the axial slice with the largest nodule cross-section so the results remain comparable with the existing sheet.
 
-החלטה 2
-החלטנו שהכלי עוזר לדניאל ולא מחליף אותו. כל ערך שהכלי מציע דורש את האישור שלו.
-למה: דניאל אמר שהוא יסמוך על הכלי רק אם יוכל לראות את הסימון ולתקן אותו. במחקר גדילה, טעות שאיש לא בדק פוגעת בכל הניתוח.
+## Platform
 
-החלטה 3
-החלטנו שמה שמוצג בדמו הוא החיסכון בזמן ובאיכות, ולא חיזוי ממאירות ולא החלטה קלינית כלשהי.
-למה: המטלה אוסרת טענות קליניות, והמעבדה ביקשה מדידה ולא אבחנה.
+8. Deliver a browser link. The lab has no software budget, installation privileges or IT support for this pilot.
+9. Use public TCIA cases. Hospital scans stay within the hospital.
+10. Precompute lung masks, registration and detection in Python. Run viewing, outlining and measurement in the browser. The pilot corpus is known in advance, so it can be served statically. Report offline computation separately. Supporting arbitrary scan uploads would require additional work.
+11. Use NiiVue with compressed NIfTI and extracted DICOM metadata in JSON. The proposal called for a half-day Base44 embedding trial. Simcha chose Claude Code and a dedicated React/Vite app, so the trial did not take place. The deployed viewer uses Vercel and passed the coordinate checks in J6.
+12. Keep sessions in the browser without sign-in. Provide JSON save and restore, including timing data, so researchers can recover after clearing browser storage.
+13. Prepare a cropped, compressed DICOM subset ahead of the demo. Naomi can open it without running the TCIA downloader.
 
-החלטה 4
-החלטנו שהמקרים של דניאל ייבנו לפי סדר החיסכון בזמן: קודם רישום, אחר כך מדידה ונפח, אחר כך התאמה בסריקת המעקב, ובסוף איתור של קשריות חדשות.
-למה: זה הסדר של חיסכון כפול סיכוי הצלחה. רוב הסריקות הן סריקות מעקב עם 1–2 קשריות שכבר ידועות, ולכן איתור כללי הוא המנוף הקטן והמסוכן מכולם.
+## Data
 
-## משתמשים וזרימת עבודה
+14. Use RIDER Lung CT and RIDER-LungCT-Seg for expert outlines and same-day repeat scans, as Naomi requested.
+15. Target about ten RIDER patients with paired scans and exact reference series. Verify thickness before setting the repeatability target; a 5 mm series would change the interpretation. Download time limited the shipped subset to seven pairs with 13–68 mm tumours, annotated on 1.25 mm LUNG-kernel series.
+16. Supplement RIDER with roughly ten LIDC nodules for small and difficult appearances. The shipped subset contains seven nodules across five scans: two ground-glass, one part-solid, one spiculated, one subtle solid and two easier solid nodules. LIDC-0828 replaced 0590 (J13). Reader texture ratings span 1 (ground-glass) to 5 (solid).
+17. Map Daniel’s eight teaching examples by type, size and location. The subtle solid nodule in LIDC-0017 stands in for a vessel-adjacent case because vessel adjacency was unlabelled. A confirmed chest-wall/collapsed-lung example is also missing.
+18. Attribute TCIA and the individual collections in the viewer and documentation. The data licences and the research handoff require it.
 
-החלטה 5
-החלטנו שדניאל הוא המשתמש העיקרי, ושנאומי צריכה להצליח לפתוח את הכלי ולהשתמש בו לבד בדמו, בלי הדרכה.
-למה: נאומי ביקשה במפורש דמו "that I can open and use myself".
+## Measurement
 
-החלטה 6
-החלטנו שזרימת העבודה בכלי תהיה בסדר שבו דניאל כבר עובד: פתיחת סריקה, איתור, מדידה, התאמה לסריקת הבסיס, רישום.
-למה: כשהסדר לא משתנה, לא צריך ללמוד שיטה חדשה, והשוואת הזמנים בין עבודה ידנית לעבודה עם הכלי הוגנת.
+19. One click starts a 3D outline and yields long axis, short axis and volume. This targets the time spent drawing every slice by hand.
+20. Start with classical 3D region growing, an adjustable threshold, a precomputed lung constraint and an add/erase brush. Ground-glass, vessel-adjacent, wall-adjacent and spiculated lesions challenge the algorithm. A one-day MedSAM trial on ground-glass was proposed for week two.
+21. Use the largest axial diameter and greatest perpendicular diameter on the same slice. Their average supplies the sheet’s mean diameter.
+22. Suggest the dense component of a part-solid nodule with an adjustable HU threshold. Daniel judges the core visually under his SOP. The original plan called for calibration on LIDC part-solid cases.
+23. Flag uncertain edges and possible vessel or chest-wall attachment. Daniel already records uncertainty and needs to see where review matters.
 
-החלטה 7
-החלטנו שהמדידה הראשית נעשית בפרוסה הצירית (axial) שבה הקשרית נראית הכי גדולה, כמו שדניאל מודד היום.
-למה: אם הכלי יודד בשיטה אחרת, המספרים לא יתאימו לגיליון שלו ולניתוח הגדילה שכבר התחיל.
+## Follow-up matching
 
-## פלטפורמה וארכיטקטורה
+24. Use the baseline location to suggest a follow-up target. Matching costs about ten minutes on a typical repeat visit.
+25. Map through an affine transform and refine locally to handle breathing shifts. The proposed image-correlation refinement would require loading both scans. The implementation ranks up to four blobs within 15 mm by distance and volume similarity; close competing scores or a twofold volume change flag uncertainty. Registration uses masked rigid then affine alignment with MOMENTS initialization (J7).
+26. Start from a baseline measurement saved by the pilot. Defer sheet import until hospital viewer image numbers can be mapped reliably.
+27. Record matched or uncertain status and let Daniel confirm. A wrong pairing affects the whole longitudinal comparison.
 
-החלטה 8
-החלטנו שהכלי הוא אפליקציית ווב שנפתחת מלינק, בלי התקנה, בלי IT ובלי עלות למעבדה.
-למה: נאומי: "simple, web-based… no IT support at all". דניאל: "cannot install local software". Base44 דורשים לינק לכלי שרץ.
+## Candidate detection
 
-החלטה 9
-החלטנו שבפיילוט רצים רק על דאטה ציבורי מ-TCIA, ושאף סריקה אמיתית של בית החולים לא נכנסת לכלי.
-למה: "no real scans leave the hospital". דניאל: "we must use public data… for this".
+28. Offer candidate locations and confidence as an optional final feature. False candidates consume review time.
+29. Evaluate a trained detector only on cases independent of its training. Many detectors use LUNA16, derived from LIDC. Run detection offline.
+30. Keep the demo independent of detector performance. The offline Hessian dot filter found 11/21 in the top ten and 0/2 ground-glass cases. Its experimental jump list defaults to off and contributes no assumed time saving.
 
-החלטה 10
-החלטנו שהכלי יהיה אתר סטטי בלי שרת חי. החלקים האינטראקטיביים (צפייה, קליק, קו מתאר, צירים ונפח) ירוצו בדפדפן. החלקים הכבדים (מסכת ריאות, רישום בין סריקות ואיתור) ירוצו מראש בצינור עיבוד ב-Python, והתוצאות שלהם יישמרו לצד הסריקות.
-למה: כל מקרי הפיילוט טעונים מראש (החלטה 13), אז כל קלט ידוע מראש. אתר סטטי לא יכול ליפול או להיתקע בהתעוררות מול נאומי, ואין לו עלות ותחזוקה. אותו קוד Python יוכל לרוץ בהמשך כשירות. המחיר: משתמש לא יכול להעלות סריקה משלו, וזמן החישוב מדווח בנפרד.
+## Review, recording and export
 
-החלטה 11
-החלטנו שה-viewer יהיה NiiVue על קבצי NIfTI דחוסים, ושהמטא-דאטה של DICOM יחולץ מראש לקובץ JSON. לפני ההכרעה איפה לבנות, נעשה ניסוי של חצי יום: אם NiiVue רץ בתוך Base44 וטוען volume ציבורי, הכלי כולו נבנה ב-Base44. אחרת הוא נבנה כאפליקציה ייעודית (React עם Vite) באחסון סטטי חינמי, ונתעד בדיוק איפה Base44 נעצר.
-למה: NiiVue קל ומהיר ללמידה, ומתאים לדאטה שמומר מראש. Base44 "welcome" במטלה, וההכרעה צריכה להישען על ראיה ולא על הנחה.
-עדכון בביצוע: שמחה בחר לבנות הכל ב-Claude Code, ולכן ניסוי Base44 לא נערך. הכלי הוא React + Vite + NiiVue, ומתארח ב-Vercel (production, פתוח בלי התחברות). NiiVue עבר את בדיקת הלוך-חזור של הקואורדינטות (junctions J6).
+31. Let the researcher toggle expert and tool outlines independently, as Daniel requested.
+32. Support manual additions and erasures and immediately recompute the measurements.
+33. Record row provenance as tool, edited or manual. The edit rate also informs the effort estimate.
+34. Export Daniel’s spreadsheet columns in their original order with traceability fields appended. Recording currently takes him 3–5 minutes.
+35. Populate patient ID, scan date, series, thickness and image number from scan metadata and viewer geometry.
+36. Track active minutes per case to support comparison with Daniel’s existing time records.
 
-החלטה 12
-החלטנו שבפיילוט אין התחברות למשתמשים. העבודה נשמרת בדפדפן, ואפשר גם לשמור אותה ולטעון אותה כקובץ session (JSON), כולל נתוני הזמן.
-למה: התחברות מוסיפה חיכוך לנאומי ותחזוקה למעבדה. בלי קובץ session, ניקוי של הדפדפן מוחק את העבודה ואת נתוני הזמן.
+## Quality evaluation
 
-החלטה 13
-החלטנו שהדאטה עובר הכנה מראש: DICOM מומר לקבצי volume דחוסים, נחתך לתת-קבוצה קטנה ונטען מראש בכלי.
-למה: נאומי לא תריץ את TCIA Data Retriever, והדמו חייב להיפתח מהר מלינק.
+37. Compare long axis, short axis, volume and mask overlap with expert annotations. Daniel’s own measurements of the public cases are unavailable.
+38. Compare long-axis results with the spread among LIDC radiologists. The evaluation uses the reader range with a 0.5 mm allowance.
+39. Target roughly 1 mm test–retest variation on RIDER. The proposed 2–3 longitudinal LIDC cases could not provide independent validation: all eight candidate patients had 2.5–3 mm slices and lacked cross-timepoint nodule IDs independent of registration (J15). Matching evidence is from same-day pairs.
+40. Report outcomes by teaching-case type. An overall average can conceal ground-glass failures.
+41. Set evaluation thresholds before scoring. Document tuning on evaluation cases separately.
 
-## דאטה
+## Time savings
 
-החלטה 14
-החלטנו ש-RIDER Lung CT יחד עם RIDER-LungCT-Seg הם סט ההערכה הראשי.
-למה: נאומי ביקשה שהפיילוט ירוץ עליו. יש בו זוגות של סריקות מאותו יום, שבהם הגידול לא באמת משתנה, וגם קווי מתאר של מומחה.
+42. Combine a time model with a proposed timed human study. The simulated client cannot operate the tool.
+43. Plan approximately ten cases in alternating manual-first/tool-first order to reduce familiarity bias. Study mode supplies separate timers, brush-only manual work and a study export; the case list is in [the study schedule](eval/timed-study-cases.md). Human timing is pending. A separate agent-run KLM estimate counted clicks, reviews and slices requiring brush correction (>20% area difference), using Card, Moran and Newell (1980). Estimated follow-up savings were 50–64%, or 32% without a search benefit; baseline savings were 23–28%. Large central tumours could take longer to correct than to trace.
+44. Model each stage using Daniel’s baseline times and estimated reductions. Report baseline and follow-up separately because their proportions in the backlog are unknown.
+45. Charge for reviewing false candidates so detection does not inflate the estimate.
 
-החלטה 15
-החלטנו לבחור מ-RIDER כ-10 מטופלים עם סריקת בדיקה וסריקה חוזרת, ודווקא את הסדרות שעליהן צוירו קווי המתאר של RIDER-Seg.
-למה: בלי קו מתאר על אותה סדרה אין ground truth. הורדה של כל 43GB מיותרת לפיילוט. המשימה הראשונה ביום הראשון היא לבדוק על אילו סדרות ובאיזה עובי פרוסה צוירו קווי המתאר. אם העובי הוא 5 מ"מ, היעד בהחלטה 39 יעודכן.
-עדכון בביצוע: נכנסו 7 זוגות ולא כ-10, בגלל זמני ההורדה מ-TCIA. גודל הגידולים 13–68 מ"מ. קווי המתאר צוירו על סדרות בעובי 1.25 מ"מ עם kernel של LUNG, כפי שאומת.
+## Delivery
 
-החלטה 16
-החלטנו להוסיף תת-קבוצה קטנה מ-LIDC-IDRI (CC BY 3.0): כ-10 קשריות שמכסות ground-glass, part-solid, קשרית ליד כלי דם, קשרית צמודה לדופן החזה ו-spiculated.
-למה: ב-RIDER כמעט אין קשריות GGO קטנות, ודניאל אמר שאלה בדיוק המקרים שלוקחים לו הכי הרבה זמן. ב-LIDC כל קשרית סומנה על ידי ארבעה רדיולוגים, ויש לה דירוג texture מ-1 (GGO) עד 5 (solid).
-עדכון בביצוע: נכנסו 7 קשריות מ-5 סריקות ולא כ-10 (ה-part-solid הוא LIDC-0828, שהחליף את 0590, J13): ‏2 GGO, ‏1 part-solid, ‏1 spiculated, ‏1 solid קטנה ועדינה ו-2 solid קלות. לא נמצאה ב-LIDC קשרית מתויגת כ"צמודה לדופן".
+46. Plan three increments: viewer/data/measurement/export, then follow-up matching and quality evaluation, then detection, timing and demo polish. Deliver a usable tool at each stage.
+47. Share the decision summary with Naomi and Daniel before implementation so they can correct assumptions early. Simcha owns that communication.
+48. Report progress, failures and measurements in the assignment’s internal update channel. Simcha owns posting.
+49. Deliver the running link, source and run instructions, results, failures and the time-estimation method.
 
-החלטה 17
-החלטנו לבנות טבלה שמתאימה לכל אחד משמונת מקרי ההוראה של דניאל מקרה ציבורי דומה לו בסוג, בגודל ובמיקום.
-למה: דניאל שופט כל כלי לפי שמונת המקרים האלה, והוא לא יכול לשלוח את התמונות עצמן.
-עדכון בביצוע: בטבלת ההתאמה חסרים שני סוגים. "solid ליד כלי דם" הוחלף ב"solid קטנה ועדינה" (LIDC-0017), כי ל-LIDC אין תיוג של צמידות לכלי דם. אף מקרה לא תויג אוטומטית "צמוד לדופן / ריאה קורסת".
+## Boundaries and architecture-review additions
 
-החלטה 18
-החלטנו להציג בכלי ובתיעוד ייחוס (attribution) מלא ל-TCIA ולכל אחד מהסטים.
-למה: הרישיונות מחייבים ציטוט. דניאל ביקש לוודא שהשימוש מותר למחקר.
-
-## מדידה
-
-החלטה 19
-החלטנו שהמדידה מתחילה בקליק אחד של דניאל על הקשרית, והכלי מחזיר קו מתאר תלת-ממדי, ציר ארוך, ציר קצר ונפח.
-למה: זה מחליף את המדידה הידנית ואת הציור הידני בכל פרוסה, שהם חלק גדול ונסתר מהזמן שלו.
-
-החלטה 20
-החלטנו שבגרסה הראשונה קו המתאר יחושב בשיטה קלאסית: region growing תלת-ממדי, עם סרגל ספים שמשנה את התוצאה בזמן אמת, ועם מסכת ריאות שמחושבת מראש ו"חוסמת" את דופן החזה. בנוסף תהיה מברשת להוספה ולמחיקה. בשבוע 2 ננסה במשך יום מודל מבוסס קליק (למשל MedSAM), שרץ מראש, רק על GGO.
-למה: 4 מתוך 8 מקרי ההוראה (GGO, קשרית ליד כלי דם, קשרית צמודה לדופן, spiculated) הם בדיוק המקרים שבהם region growing לבד נכשל. בגרסה הראשונה, התיקון של דניאל סוגר את הפער.
-
-החלטה 21
-החלטנו שהציר הארוך הוא הקוטר הגדול ביותר בפרוסה הצירית הגדולה ביותר, ושהציר הקצר הוא הקוטר הגדול ביותר שניצב לו באותה פרוסה.
-למה: זו ההגדרה שדניאל עובד לפיה, והגיליון מחשב ממנה את mean diameter.
-
-החלטה 22
-החלטנו שהכלי רק מציע את רכיב ה-solid בקשרית part-solid, לפי סף צפיפות שאפשר לשנות, ודניאל מאשר אותו או מתקן בעין.
-למה: דניאל אמר שהוא קובע את החלק הדחוס בעין לפי ה-SOP, בלי סף HU. ערך ברירת המחדל יכויל על מקרי part-solid ב-LIDC.
-
-החלטה 23
-החלטנו שאם המדידה לא בטוחה, למשל קשרית צמודה לדופן או לכלי דם, הכלי יגיד את זה במפורש ולא יציג מספר בביטחון מזויף.
-למה: דניאל כבר מסמן "Uncertain". כלי שמסתיר ספק יאבד את האמון שלו כבר בפעם הראשונה.
-
-## התאמה בסריקת המעקב
-
-החלטה 24
-החלטנו שבסריקת מעקב הכלי לוקח את מיקום הקשרית מסריקת הבסיס ומציע איפה היא נמצאת עכשיו.
-למה: רוב הסריקות הן סריקות מעקב, וההתאמה לוקחת כ-10 דקות לכל סריקה. זה החיסכון הגדול ביותר שאפשר להשיג בלי גלאי כללי.
-
-החלטה 25
-החלטנו שהמיקום בסריקת המעקב יחושב בשלושה שלבים: רישום affine של מסכות הריאה, חידוד מקומי סביב הנקודה מסריקת הבסיס, ואז "הצמדה" לכתם הקרוב ביותר. ההתאמה לא תסתמך על מספר הפרוסה.
-למה: דניאל אמר שהנשימה מזיזה את הפרוסות ושהוא מתעלם ממספרי הפרוסה. רישום של כל הריאה לבד לא מספיק לתזוזה מקומית.
-עדכון בביצוע: החידוד המקומי לא נעשה בהשוואת תמונה (NCC), כי לשם כך היה צריך לטעון גם את סריקת הבסיס. במקום זה הכלי בוחן עד 4 כתמים ברדיוס 15 מ"מ, ומדרג אותם לפי המרחק מהמיקום המשוער ולפי הדמיון בנפח לקשרית בסריקת הבסיס. אם המועמד השני קרוב מדי במדד, או שהנפח שונה פי 2 ומעלה, ההתאמה מסומנת Uncertain. הרישום עצמו נעשה rigid ואחר כך affine, עם נקודת התחלה MOMENTS ומטריקה מוגבלת לריאות (J7).
-
-החלטה 26
-החלטנו שבפיילוט מיקום הבסיס מגיע ממדידה קודמת בכלי עצמו. ייבוא שורה מהגיליון של דניאל נדחה לשלב 2.
-למה: מספרי התמונות בגיליון שלו שייכים ל-viewer של בית החולים, ובפיילוט אין סריקות כאלה.
-
-החלטה 27
-החלטנו שכל התאמה מסומנת כ-matched או כ-Uncertain, ודניאל מאשר אותה.
-למה: זה התחום שבו טעות היא הכי יקרה, וכך דניאל כבר עובד היום.
-
-## איתור
-
-החלטה 28
-החלטנו שאיתור קשריות חדשות הוא תוספת אחרונה, שמוצגת כרשימת מועמדים עם רמת ביטחון ולא כתשובה סופית.
-למה: זה הרכיב הקשה ביותר. מועמדים שגויים מוסיפים זמן בדיקה ויכולים למחוק את כל החיסכון.
-
-החלטה 29
-החלטנו שאם נשתמש בגלאי מאומן, נבדוק אותו רק על RIDER או על מקרים שהוא לא ראה באימון.
-למה: גלאים רבים אומנו על LUNA16, שנגזר מ-LIDC, ובדיקה שלהם על LIDC תיראה טובה מדי. הגלאי רץ מראש בצינור העיבוד (החלטה 10).
-
-החלטה 30
-החלטנו שהאיתור לא חוסם את הדמו. אם הוא לא יעמוד ברף עד השבוע השלישי, הוא יוצג כניסוי ולא כתכונה.
-למה: בסריקות מעקב אפשר להגיע לחצי מהזמן גם בלי איתור, והדמו לנאומי חשוב יותר מהשלמות שלו.
-עדכון בביצוע: נבנה מסנן Hessian "dot" קלאסי, מחושב מראש (J14). הרגישות 11/21 ב-10 המועמדים הראשונים, כולל 0/2 GGO. לא עמד ברף, ולכן הוא מוצג כרשימת קפיצה "ניסיונית" שכבויה כברירת מחדל, ומודל הזמן לא נשען עליו.
-
-## אמון ותיקון
-
-החלטה 31
-החלטנו שבדאטה הציבורי הסימון של הכלי מוצג ליד קו המתאר של המומחה, עם אפשרות להדליק ולכבות כל אחד מהם.
-למה: זה התנאי הראשון שדניאל נתן כדי לסמוך על הכלי.
-
-החלטה 32
-החלטנו שאפשר לתקן כל קו מתאר ביד (להוסיף ולמחוק אזורים), ושכל המספרים מתעדכנים מיד אחרי התיקון.
-למה: זה התנאי השני של דניאל, וזו דרישה ולא תוספת.
-
-החלטה 33
-החלטנו שבכל רשומה יש עמודת מקור: tool, edited או manual.
-למה: זה שומר על אמינות מחקרית, ושיעור העריכות הוא בעצמו ראיה לכמה הכלי באמת חוסך.
-
-## רישום וייצוא
-
-החלטה 34
-החלטנו שהכלי מייצא CSV עם העמודות של הגיליון של דניאל בדיוק ובאותו סדר, ועם עמודת המקור בסוף.
-למה: התנאי השלישי של דניאל הוא "export the numbers directly to my sheet". כך גם 3–5 דקות הרישום כמעט נעלמות.
-
-החלטה 35
-החלטנו שפרטי הסריקה (patient ID, scan date, series, slice thickness, image number) נמשכים אוטומטית מכותרות ה-DICOM.
-למה: אלה ערכים שדניאל מקליד היום ביד, והם לא דורשים שום שיקול דעת.
-
-החלטה 36
-החלטנו שהכלי מודד אוטומטית כמה דקות דניאל עבד על כל סריקה וממלא את עמודת minutes.
-למה: דניאל כבר רושם את הזמן הזה, ולכן ההשוואה לקו הבסיס שלו נעשית בלי מאמץ נוסף.
-
-## הערכת איכות
-
-החלטה 37
-החלטנו שהדיוק נבדק מול קו המתאר של המומחה: הפרש בציר הארוך, בציר הקצר ובנפח, וחפיפה בין קווי המתאר.
-למה: אין לנו את המדידות של דניאל על הדאטה הציבורי, וקו המתאר של המומחה הוא המדד הכי קרוב.
-
-החלטה 38
-החלטנו שרף הדיוק הוא שהטעות של הכלי תהיה קטנה מהפער שבין ארבעת הרדיולוגים ב-LIDC.
-למה: גם מומחים לא מסכימים ביניהם. לדרוש מהכלי יותר ממומחה זה לא הוגן, ולדרוש פחות זה מסוכן.
-
-החלטה 39
-החלטנו שהעקביות נבדקת על הזוגות של RIDER, והיעד הוא הפרש של כ-1 מ"מ לכל היותר בין סריקת הבדיקה לסריקה החוזרת. בנוסף נבדוק 2–3 מטופלים מ-LIDC עם שתי נקודות זמן, כמבחן מעקב אמיתי.
-למה: הגידול לא משתנה בתוך כמה דקות, ודניאל אמר שהמדידות החוזרות שלו נשארות בתוך כ-1 מ"מ. סריקות מאותו יום מחמיאות לרישום, ולכן מבחן מעקב אמיתי והמגבלה הזו ייכתבו בדוח.
-עדכון בביצוע: מבחן המעקב האמיתי **לא הורץ**. בכל 8 המטופלים ב-LIDC עם שתי נקודות זמן הפרוסות בעובי 2.5–3 מ"מ, ואין זיהוי של אותה קשרית בשתי נקודות הזמן שלא תלוי ברישום, כך שהמבחן היה מאשר את עצמו (J15). ההתאמה נבדקה רק על סריקות מאותו יום.
-
-החלטה 40
-החלטנו שהתוצאות יוצגו לפי שמונת סוגי המקרים של דניאל, ולא רק כממוצע כללי.
-למה: ממוצע יכול להסתיר כישלון על GGO, שהוא בדיוק המקרה שמעניין אותו.
-
-החלטה 41
-החלטנו לקבוע את ספי ההצלחה לפני שמריצים את הבדיקה.
-למה: כך התוצאה אמינה, ואי אפשר להתאים את הרף לתוצאה בדיעבד.
-
-## מדידת הזמן שנחסך
-
-החלטה 42
-החלטנו למדוד את הזמן בשתי דרכים יחד: ניסוי מתוזמן ומודל זמן.
-למה: דניאל לא יכול להשתמש בכלי בפועל, ולכן אף אחת מהשיטות לא מספיקה לבדה.
-
-החלטה 43
-החלטנו שבניסוי המתוזמן ה-FDE עובד על כ-10 מקרים שמכסים את שמונת הסוגים, פעם ידנית ופעם עם הכלי, בסדר מתחלף.
-למה: זו מדידה אמיתית של זמן, וסדר מתחלף מנטרל את ההשפעה של ההיכרות עם המקרה.
-עדכון בביצוע: נוסף לכלי מצב Study (manual/tool) עם טיימר נפרד לכל תנאי. בתנאי manual העזרה של הכלי כבויה ועובדים עם מברשת בלבד. נוסף כפתור Export study. רשימת המקרים והסדר המתחלף נמצאים ב-`eval/timed-study-cases.md`. הניסוי עצמו ממתין להרצה של שמחה. עד אז הדוח מציג מודל זמן עם ניתוח רגישות.
-עדכון בביצוע 2: לבקשת שמחה הרצתי בעצמי **הערכה מבוססת ספירת פעולות**. זה לא ניסוי מתוזמן על אדם: ספרתי את הקליקים, הבדיקות ומספר הפרוסות שדורשות תיקון במברשת (הפרש שטח מעל 20% מהמומחה). ההמרה לזמן נעשתה לפי KLM (Card, Moran & Newell 1980). התוצאה: סריקת מעקב −50% עד −64% (−32% בלי ההנחה ש-Find מקצר את החיפוש). סריקת בסיס −23% עד −28%. בגידולים גדולים ומרכזיים הכלי **איטי** מהעבודה הידנית. ניסוי מתוזמן על אדם נשאר הראיה החזקה יותר.
-
-החלטה 44
-החלטנו שמודל הזמן מכפיל את הדקות של דניאל בכל שלב בחיסכון שנמדד באותו שלב, בנפרד לסריקת בסיס ולסריקת מעקב.
-למה: החלוקה בין סריקות בסיס למעקב לא ידועה, ולכן נציג את שתיהן ונציב את המספר כשיגיע.
-
-החלטה 45
-החלטנו לספור כמה מועמדים שגויים הכלי מציג בכל סריקה ולהוריד את זמן הבדיקה שלהם מהחיסכון.
-למה: אחרת החיסכון שמוצג מנופח.
-
-## מסירה ותקשורת
-
-החלטה 46
-החלטנו לחלק את העבודה לשלושה שבועות. שבוע 1: viewer, דאטה, מדידה בקליק וייצוא. שבוע 2: התאמה בסריקת המעקב והערכת איכות. שבוע 3: איתור, ניסוי הזמנים וליטוש הדמו.
-למה: בסוף כל שבוע יש כלי עובד, ואם הזמן נגמר, מה שנופל הוא הרכיב הכי פחות חשוב.
-
-החלטה 47
-החלטנו לשתף את סיכום ההחלטות עם נאומי ועם דניאל לפני שמתחילים לבנות.
-למה: זול יותר לתקן החלטה מאשר קוד, וכך הם מרגישים שותפים.
-עדכון בביצוע: זו פעולה של שמחה, לשלוח את הסיכום לנאומי ולדניאל.
-
-החלטה 48
-החלטנו לעדכן את #base44-internal בסוף כל שבוע: מה עובד, מה נכשל ומה המספרים.
-למה: המטלה מבקשת לראות איך עובדים ואיך מתקשרים, ולא רק מה מוסרים בסוף.
-עדכון בביצוע: זו פעולה של שמחה, לפרסם את העדכון ב-#base44-internal.
-
-החלטה 49
-החלטנו שהתוצר הסופי ל-Base44 כולל לינק לכלי, את הקוד עם הוראות הרצה, ודוח תוצאות: מה עובד, מה נכשל ואיך נמדד הזמן.
-למה: אלה התוצרים שהמטלה מגדירה.
-
-## סיכונים וגבולות
-
-החלטה 50
-החלטנו שבכל מסך ובכל קובץ ייצוא תופיע התווית "Research use only".
-למה: המטלה אוסרת טענות קליניות.
-
-החלטה 51
-החלטנו שההטמעה על הסריקות האמיתיות של בית החולים לא נמצאת בהיקף של הפיילוט, ונרשמת כנושא לשיחה אם הפיילוט יצליח.
-למה: נאומי: "If the pilot is a success, we can talk about the future". כל מעורבות של IT היא חודשים של בדיקות.
-
-החלטה 52
-החלטנו לכתוב בדוח את הכישלונות באותה בולטות כמו ההצלחות, במיוחד על GGO ועל סריקות בסיס.
-למה: הלקוח צריך לדעת איפה להיזהר, ו-Base44 ביקשו במפורש "what fails".
-
-## תוספות מסקירת הארכיטקטורה
-
-החלטה 53
-החלטנו שכל שורה ב-CSV כוללת את גרסת האלגוריתם ואת הפרמטרים (ספים) שבהם נמדדה.
-למה: ניתוח גדילה נמשך חודשים. בלי גרסה, מדידה בגרסה 1 ומדידה בגרסה 2 של אותו מטופל לא ניתנות להשוואה או לשחזור.
-
-החלטה 54
-החלטנו על תקציב ביצועים: טעינת מקרה תוך פחות מ-5 שניות, ותגובה לקליק או לשינוי סף תוך פחות משנייה.
-למה: בדמו חי, זה מה שנאומי תרגיש קודם כול.
-עדכון בביצוע: נמדד בפרודקשן 3.3–3.6 שניות לטעינת מקרה. המדידה רצה ב-thread הראשי ולא ב-Web Worker (שינוי מ-design.md), כי היא מסתיימת תוך 0.1–1.1 שניות על קובייה של 120 מ"מ.
-עדכון בביצוע 2: המקרה הגדול (LIDC-0590, 67MB) חרג מהרף, 7.3–7.5 שניות בהורדה קרה. הוא הוחלף ב-LIDC-0828 (56MB, J13), וכעת כל המקרים הם עד 59MB.
-
-החלטה 55
-החלטנו שהכלי נתמך ב-Chrome וב-Edge עדכניים עם WebGL2, ושבדפדפן לא נתמך תוצג הודעה ברורה.
-למה: ה-viewer דורש WebGL2, ועדיף הודעה ברורה מאשר מסך ריק.
-
-החלטה 56
-החלטנו שיהיו בכלי חלונות צפייה מוגדרים מראש: חלון ריאה וחלון mediastinum, עם מעבר בלחיצה.
-למה: דניאל מודד את רכיב ה-solid בחלון ריאה, וכך הוא רגיל לעבוד.
+50. Display “Research use only” in the interface and exports.
+51. Defer hospital deployment to a discussion after the public-data pilot. IT approval could take months.
+52. Give failures comparable prominence to successes, particularly for ground-glass nodules and baseline discovery.
+53. Include algorithm version and parameters on every exported row to support comparisons and reproduction months later.
+54. Target case loading under five seconds and interactive response under one second. Early production loads were 3.3–3.6 seconds. Main-thread processing on a 120 mm cube took 0.1–1.1 seconds in the initial check, so the planned Web Worker was deferred. Cold loading of the 67 MB LIDC-0590 took 7.3–7.5 seconds; LIDC-0828 replaced it (56 MB), bringing shipped cases under 60 MB. See the evaluation for wider timing variation.
+55. Target current Chrome and Edge with WebGL2 and show a clear message if WebGL2 is unavailable.
+56. Provide one-click lung and mediastinum windows. Daniel reviews the solid component in the lung window.

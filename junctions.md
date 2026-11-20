@@ -1,92 +1,22 @@
-# צמתי החלטה בביצוע (יומן רץ)
+# Implementation decision log
 
-לכל צומת: שלוש אפשרויות, הבדיקה שמכריעה, ההכרעה והסיבה. J0–J8 נבדקו מול Advisor לפני ההכרעה. J9–J12 (סדר הניסיונות ב-GGO וסימון מעל 30 מ"מ) נבדקו בדיעבד, בסקירה של 2026-11-18: J9 ו-J12 תקינים, J11 עקיפה סבירה, וסימון 30 המ"מ סביר אבל נוסף אחרי שראינו את התוצאה. את J10 צריך לסייג, כמפורט בו.
+J0–J8 were reviewed with the advisor before selection. J9–J12 received retrospective review on November 18, 2026. The 30 mm flag was added after observing the results. J10 describes the resulting evaluation bias.
 
-## J0: איפה לבנות (החלטה 11)
-1. ב-Base44  2. אפליקציה ייעודית ב-Claude Code  3. מעטפת ב-Base44 עם viewer מוטמע
-**הכרעה:** 2, לפי בחירת שמחה ("תבנה הכל כאן בקלוד קוד"). ניסוי Base44 לא נערך.
-
-## J1: מקור ה-ground truth ב-RIDER (החלטה 15)
-1. RTSTRUCT `GTVp_*_man`  2. RTSTRUCT `GTVp_*_auto`  3. SEG "Tumor Segmentation" / QIN challenge
-**בדיקה:** הסדרה שקווי המתאר מפנים אליה היא CT בעובי 1.25 מ"מ עם kernel של LUNG ✅. ה-SEG שנבדק מסומן `lung`, ולכן הוא לא גידול. גם `auto` וגם QIN הם פלט של אלגוריתם.
-**הכרעה:** 1 בלבד.
-
-## J2: פריסה
-1. Vercel CLI עם `dist` שנבנה מראש  2. פרויקט Vercel מחובר ל-git  3. `create_deployment` דרך MCP
-**הכרעה:** 1. באפשרות 2 צריך לשמור מאות MB של volumes בתוך git. באפשרות 3 אי אפשר להעביר קבצים בגודל הזה.
-**בדיקה:** פריסה עם `--prod`, ואחריה `curl -I` בלי התחברות.
-
-## J3: פורמט הנתונים
-1. NIfTI gz  2. Raw int16 + JSON  3. Chunks/zarr
-**הכרעה:** 1. NiiVue טוען את הפורמט הזה כמו שהוא, וגם הקורא שלנו ב-Node/בדפדפן פשוט (`nifti.ts`).
-
-## J4: מסכת הריאות שחוסמת את הצמיחה (החלטה 20)
-1. סף ו-hull לכל ריאה  2. סף ו-closing גדול  3. lungmask U-Net R231
-**בדיקה:** איזה חלק מקו המתאר של המומחה נמצא בתוך המסכה.
-- hull: 70–73%.
-- U-Net: 98.6–100%.
-- U-Net ∪ hull: 99.5%. אבל ה-hull "בולע" את ה-hilum, וקשרית של 12 מ"מ דלפה ל-mediastinum (164 סמ"ק לעומת 0.3).
-**הכרעה:** 3 לבד, עם הרחבה של 2px במישור. כיסוי 99.4–100%, ו-Dice בגידול הגדול עלה מ-0.53 ל-0.82–0.85.
-
-## J5: נפח הקבצים
-1. קובץ מלא ברזולוציה מקורית (40–55MB)  2. דגימה מופחתת פי 2 (~12MB)  3. slabs שנטענים בהדרגה
-**בדיקה:** פריסה עם `--prod`, `curl` בלי התחברות והורדה: 200, 55MB ב-3 שניות. בדפדפן, טעינת מקרה בפרודקשן לקחה 3.3–3.6 שניות.
-**הכרעה:** 1, ובנוסף טעינה מראש של המקרה הבא. אפשרות 2 נפסלה: פיקסל של 1.15 מ"מ שקול לרף של 1 מ"מ. הדחיסה ניסתה מסכת גוף, כימות של 4–8 HU והחלקה, וחסכה רק 25%.
-
-## J6: viewer (החלטה 11 / ADR-2)
-1. NiiVue  2. canvas צירי ייעודי  3. Cornerstone3D
-**בדיקה:** הלוך-חזור של קואורדינטות. ה-voxel ש-NiiVue מחזיר הוא בדיוק המרכז של קו המתאר של המומחה, בסדר של הקובץ (155, 269, 161).
-**בדיקה נוספת:** מיפוי ה-drawBitmap (סדר RAS) שלנו מול `loadDrawing` של NiiVue: 147,321 מתוך 147,321 voxels זהים.
-**הכרעה:** 1.
-
-## J7: כיוון הרישום וה-initializer
-1. GEOMETRY ו-affine  2. נקודת התחלה identity/MOMENTS ו-rigid→affine עם מסכה  3. רישום B-spline לא-ליניארי
-**בדיקה:** המרחק בין מרכז ה-GTV של הבדיקה, אחרי מיפוי, לבין מרכז ה-GTV של הבדיקה החוזרת.
-- אפשרות 1: 27.6 מ"מ, גרוע יותר מבלי לרשום בכלל (21.9 מ"מ).
-- אפשרות 2: 3.6–4.5 מ"מ, בתוך רדיוס החיפוש של 15 מ"מ.
-**הכרעה:** 2. המטריצה נשמרת במפורש בכיוון בסיס→מעקב.
-
-## J8: מקור התיוג לכל קורא ב-LIDC
-1. XML גולמי  2. מסד הנתונים של pylidc ומסכות מקווי המתאר  3. מסכות מוכנות מצד שלישי
-**הכרעה:** 2. בכל קשרית 3–4 קוראים. ה-consensus הוא רוב הקוראים, ובנוסף נשמר קו מתאר לכל קורא (r1–r4) לצורך מדידת הפער בין הקוראים.
-
-## J9: איך מתמודדים עם דליפה לכלי דם (החלטה 20)
-1. סף קבוע  2. opening חזק יותר ב-3D  3. ניסוי חוזר אוטומטי בסדר קבוע (opening ב-3D, ואז העלאת סף), עם בדיקת צורה
-**בדיקה:** קשרית של 12 מ"מ. ב-−450 HU יצא 60×8 מ"מ (כלי דם צמוד). ב-−300 HU יצא 12.5×10.3 מ"מ, לעומת 12.8×9.6 של המומחה.
-**הכרעה:** 3. אם שום ניסיון לא מניב תוצאה קומפקטית, המדידה מסומנת Uncertain: "elongated, vessel may be attached".
-
-## J10: ברירת המחדל של סף הקצה (החלטה 41, בלי הצצה)
-1. לכייל על כל הדאטה  2. לכייל רק על סריקות ה-test של RIDER ולדווח על retest ועל LIDC  3. בלי כיול: ערך מהספרות (−450 HU)
-**בדיקה:** הרצה של growAuto (אותו מסלול שרץ בפרודקשן) על 7 סריקות test, בספים מ-−550 עד −250.
-- −450: שגיאה חציונית של 19.5%, ו-0 דליפות.
-- −300: אותה שגיאה, 19.5%.
-- −250: 55%.
-**הכרעה:** 2. ברירת המחדל נשארת −450.
-**הסתייגות (Advisor, 2026-11-18):** הסף עצמו לא כוונן על נתוני הדוח, אבל שאר הכללים כן פותחו על אותן 21 קשריות שעליהן מדווחים: סדר הניסיונות ב-GGO (LIDC-0088), ה-opening ב-3D והעלאת הסף (RIDER-1801720707_test) וסימון הגידולים מעל 30 מ"מ (RIDER-2655999012_test). לכן התוצאות **אופטימיות**. אין בדוח סט שהכלי לא ראה בפיתוח.
-
-## J11: פריסה כשהתיקייה נמצאת בתוך git
-1. להוסיף את כתובת המייל של ה-commit לצוות ב-Vercel  2. לשנות את זהות ה-git  3. לפרוס עותק של `dist` מחוץ לריפו
-**בדיקה:** Vercel חסם את הפריסה עם `TEAM_ACCESS_REQUIRED` (מחבר ה-commit לא חבר בצוות).
-**הכרעה:** 3. זה לא נוגע בהרשאות ולא בזהות. `rsync` של `dist` לתיקייה זמנית, ומשם `vercel deploy --prod`.
-
-## J12: מה עושים כשהמדידה עלולה להיות שגויה
-1. להציג את המספר כמו שהוא  2. להסתיר את התוצאה  3. להציג אותה עם Uncertain ועם הסיבה
-**הכרעה:** 3, לפי החלטה 23. הסיבות: דליפה, צורה של כלי דם, נגיעה בדופן, קשרית קטנה מ-4 מ"מ או גדולה מ-30 מ"מ, והתאמה עם שני מועמדים או עם נפח שונה פי 2 ומעלה.
-**מחיר:** 38% מהמדידות מסומנות. 5 מתוך 21 שגיאות נשארות "שקטות" (2–3 מ"מ, לא מסומנות), ומודל הזמן מחייב גם אותן.
-
-## J13: המקרה הגדול חורג מרף הטעינה (החלטה 54). נבדק מול Advisor לפני ההכרעה (2026-11-18)
-1. דגימה מחדש של z ל-1.25 מ"מ  2. חיתוך הדוק יותר  3. החלפה בקשרית part-solid אחרת עם פרוסות של 1.25 מ"מ
-**בדיקה:** ב-LIDC-0590 המרווח בין הפרוסות 0.625 מ"מ (שחזור חופף). לכן יש 473 פרוסות והקובץ 67MB.
-**הכרעה:** 3, LIDC-0828 (part-solid, 4 קוראים, 8.3 מ"מ, 1.25 מ"מ). דגימה מחדש הייתה משבשת את `image_number` שבגיליון של דניאל. החיתוך כבר צמוד לריאות.
-**תוצאה:** 56MB, כמו מקרה טיפוסי. הציר הארוך 8.0 מ"מ, בתוך טווח הקוראים.
-
-## J14: איתור בסריקות בסיס (החלטות 28–30). נבדק מול Advisor לפני ההכרעה
-1. מסנן Hessian "dot" קלאסי, מחושב מראש  2. גלאי MONAI מאומן  3. בלי איתור
-**הכרעה:** 1. אין בו אימון ולכן אין זליגה, ואפשר לבדוק אותו על כל הקשריות. MONAI אומן על LUNA16 (שנגזר מ-LIDC), ואפשר היה לבדוק אותו רק על RIDER.
-**הפרמטרים נקבעו לפני הניקוד:** סקאלות 1.5/2.5/4/6 מ"מ, 10 המועמדים הראשונים.
-**תוצאה:** רגישות 7/21 ב-5 המועמדים הראשונים ו-11/21 ב-10 הראשונים, וכ-9.4 מועמדים שגויים לכל סריקה. מחמיץ את ה-GGO ואת הגידולים הגדולים. לכן, לפי החלטה 30, הוא נשאר ניסיוני וכבוי כברירת מחדל.
-
-## J15: מבחן מעקב של חודשים (החלטה 39). נבדק מול Advisor לפני ההכרעה
-1. 8 המטופלים ב-LIDC עם שתי נקודות זמן  2. דאטה ציבורי אחר עם מעקב  3. לא להריץ ולתעד למה
-**בדיקה (שאילתה למסד הנתונים, בלי הורדה):** בכל 8 המטופלים הפרוסות בעובי 2.5–3 מ"מ. ב-LIDC אין קישור בין קשרית בנקודת זמן אחת לאותה קשרית בנקודה השנייה, חוץ מ"הקרובה ביותר אחרי רישום", וזה בדיוק מה שנבדק. המבחן היה מאשר את עצמו.
-**הכרעה:** 3. לא הורץ, והמגבלה כתובה בדוח.
+| Decision | Alternatives and test | Outcome |
+|---|---|---|
+| J0. Platform | Base44, a dedicated Claude Code app, or an embedded viewer in a Base44 shell. | Simcha chose the dedicated app. The Base44 embedding trial was never run. |
+| J1. RIDER reference | Compare manual and automatic RTSTRUCT contours and SEG/QIN outputs. The referenced CT had 1.25 mm slices and a LUNG kernel. The inspected SEG labelled the lung; automatic and QIN masks were algorithm outputs. | Use only manual `GTVp_*_man` contours. |
+| J2. Initial deployment | Vercel CLI with prebuilt assets, Git integration, or MCP upload. Hundreds of MB of scans made direct transfer through Git or MCP impractical at the time. | Deploy the static build with the CLI and check unauthenticated HTTP access. Current Git deployment restores checksum-verified assets during the build; see the README. |
+| J3. Volume format | Compressed NIfTI, raw int16 plus JSON, or chunked Zarr. | Use NIfTI gzip. NiiVue loads it directly and the shared reader is small. |
+| J4. Lung constraint | Threshold plus convex hull covered 70–73% of the expert tumour. Closing and U-Net were also considered. U-Net alone covered 98.6–100%. Union with the hull reached 99.5% but admitted the hilum: one 12 mm lesion grew to 164 cm³ against 0.3 cm³. | R231 lungmask plus 2-pixel in-plane dilation covered 99.4–100%. Large-tumour Dice improved from 0.53 to 0.82–0.85. |
+| J5. File size | Native volumes (40–55 MB), half-resolution volumes (~12 MB), or progressive slabs. A public 55 MB download took 3 seconds; browser loads were 3.3–3.6 seconds. Body masking, 4–8 HU quantization and smoothing saved only 25%. | Keep native resolution and prefetch the next case. Downsampling would yield 1.15 mm pixels against a roughly 1 mm measurement target. |
+| J6. Viewer | Compare NiiVue, custom axial canvas and Cornerstone3D. A round trip recovered the expert centre at file voxel (155, 269, 161). All 147,321 drawing voxels agreed with NiiVue’s RAS-order reference. | Use NiiVue. |
+| J7. Registration | Compare GEOMETRY-initialized affine, identity/MOMENTS rigid-to-affine with a lung mask, and nonlinear B-spline. Mapped tumour-centre error was 27.6 mm with GEOMETRY, 21.9 mm with no registration and 3.6–4.5 mm in the masked trial. | Store the baseline-to-follow-up matrix explicitly and use masked rigid-to-affine alignment. |
+| J8. LIDC reader labels | Raw XML, pylidc masks, or third-party masks. | Use pylidc and preserve individual masks from 3–4 readers alongside the majority consensus. |
+| J9. Vessel leakage | Compare a fixed threshold, stronger 3D opening and ordered retries with shape checks. At −450 HU a 12 mm nodule grew to 60 × 8 mm. At −300 HU it measured 12.5 × 10.3 mm against 12.8 × 9.6 mm. | Retry 3D opening and a higher threshold. Flag persistent elongation as possible vessel attachment. |
+| J10. Edge threshold | Compare calibration on all scans, RIDER test scans only, and a literature default. On seven test scans, −450 and −300 HU both yielded 19.5% median error. At −250 HU error reached 55%. The −450 HU run had zero leaks. | Keep −450 HU. Ground-glass retry ordering (0088), opening and threshold escalation (1801720707), and the 30 mm flag (2655999012) were developed on cases included in the report. There is no independent hold-out. |
+| J11. Deployment from Git | Adding the commit email to the team, changing Git identity, or deploying a copy of the built directory were considered after an initial TEAM_ACCESS_REQUIRED error. | At that stage a static copy was deployed from a temporary directory. See J2 for the current workflow. |
+| J12. Uncertainty | Present a bare measurement, suppress it, or show it with a reason. | Show the value and reason for leaks, elongation, wall contact, sizes below 4 or above 30 mm, competing matches or a twofold volume change. Flags affected 38%; five out-of-tolerance measurements were unflagged. Both groups cost review time in the model. |
+| J13. Slow part-solid case | Resample to 1.25 mm, crop more tightly, or substitute a comparable case. LIDC-0590 had overlapping 0.625 mm slices, 473 slices and a 67 MB file. Cropping was already tight; resampling would change image numbering. | Use LIDC-0828 (four readers, 8.3 mm, 1.25 mm slices, 56 MB). Tool axis 8.0 mm met the reader tolerance. Reviewed before selection on November 18. |
+| J14. Baseline detection | Compare a precomputed Hessian dot filter, trained MONAI detector and no detector. MONAI’s LUNA16 training would complicate LIDC evaluation. | Test the Hessian filter at 1.5/2.5/4/6 mm with ten candidates, fixed before scoring. Sensitivity was 7/21 at five and 11/21 at ten, with ~9.4 false candidates per scan. Ground-glass and large tumours were frequently missed. Keep the feature experimental and off by default. |
+| J15. Longitudinal validation | Evaluate eight longitudinal LIDC patients, seek another public dataset, or defer. Metadata queries showed 2.5–3 mm slices and no independent cross-timepoint nodule identity. Nearest-after-registration would validate the registration against itself. | Defer the months-apart test and disclose the limitation. |

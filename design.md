@@ -1,111 +1,36 @@
-# LongMarker: תכנון מערכת (פיילוט)
+# LongMarker system design
 
-כל ההחלטות מפורטות ב-[decisions.md](decisions.md), והמספרים בסוגריים מפנים אליהן. לשימוש מחקרי בלבד.
+This is the original pilot design, with implementation notes where the shipped system differs. See the [56 decisions](decisions.md) for rationale and the [README](README.md) for current build instructions. Research use only.
 
-## 1. דרישות
+## Requirements
 
-### דרישות פונקציונליות
-| # | דרישה | החלטות |
+| ID | Researcher task | Decisions |
 |---|---|---|
-| F1 | לפתוח מקרה טעון מראש (RIDER או LIDC) ב-viewer צירי, עם חלון ריאה וחלון mediastinum | 13, 56 |
-| F2 | קליק על קשרית מחזיר קו מתאר תלת-ממדי, ציר ארוך, ציר קצר ונפח | 19–21 |
-| F3 | סרגל ספים, ומברשת להוספה ולמחיקה. המספרים מתעדכנים מיד | 20, 32 |
-| F4 | הצעה לרכיב solid לפי סף שאפשר לשנות, ודניאל מאשר | 22 |
-| F5 | סימון Uncertain כשהמדידה לא אמינה | 23, 27 |
-| F6 | בסריקת מעקב: קפיצה למיקום המשוער של הקשרית מסריקת הבסיס, ודניאל מאשר | 24–27 |
-| F7 | הצגה של קו המתאר המומחה ליד קו המתאר של הכלי, עם אפשרות להדליק ולכבות כל אחד | 31 |
-| F8 | רשימת מועמדים לאיתור, עם רמת ביטחון. אפשר לכבות אותה | 28, 30 |
-| F9 | ייצוא CSV בעמודות של הגיליון, עם עמודת מקור וגרסת אלגוריתם | 33–35, 53 |
-| F10 | מדידת זמן אוטומטית לכל מקרה, ושמירה וטעינה של קובץ session | 12, 36 |
+| F1 | Open a prepared RIDER or LIDC case in an axial viewer with lung and mediastinum window presets. | 13, 56 |
+| F2 | Click to obtain a 3D outline, long and short axes and volume. | 19–21 |
+| F3 | Adjust the threshold, paint or erase, and recalculate. | 20, 32 |
+| F4 | Review and confirm the suggested dense component. | 22 |
+| F5 | Flag uncertain measurements. | 23, 27 |
+| F6 | Jump from a baseline nodule to a proposed follow-up match and confirm it. | 24–27 |
+| F7 | Toggle the expert and tool outlines independently. | 31 |
+| F8 | Inspect an optional ranked candidate list. | 28, 30 |
+| F9 | Export the lab’s columns, provenance, parameters and version. | 33–35, 53 |
+| F10 | Record active minutes and save or restore a session. | 12, 36 |
 
-### דרישות לא-פונקציונליות
-| דרישה | יעד |
-|---|---|
-| זמינות | אתר סטטי, בלי שרת חי (10) |
-| ביצועים | טעינת מקרה תוך פחות מ-5 שניות. קליק או שינוי סף תוך פחות משנייה (54) |
-| עלות ותחזוקה | אפס (8, 10) |
-| פרטיות | דאטה ציבורי בלבד. שום דבר לא עולה לשרת (9) |
-| תאימות | Chrome ו-Edge עם WebGL2 (55) |
-| שחזוריות | גרסת אלגוריתם ופרמטרים בכל שורה (53) |
-| נפח אחסון | כ-20 מקרים, בערך 10–20MB למקרה אחרי חיתוך ודחיסה |
+The design assumed one developer, one week to a working Part 1 and three weeks to Naomi’s demo. Targets included static hosting, current Chrome/Edge with WebGL2, zero installation and lab hosting cost, public data, case load under five seconds and click/threshold response under one second. The original storage estimate was about 20 cases at 10–20 MB each. Actual file sizes and timings appear in [the brief](BRIEF.md).
 
-### אילוצים
-- שבוע אחד עד גרסה עובדת לחלק 1, ו-3 שבועות עד הדמו לנאומי (46).
-- מפתח אחד: ה-FDE עם Claude Code.
-- אין IT, אין התקנה ואין תקציב.
+## Components and data flow
 
-## 2. ארכיטקטורה ברמה גבוהה
+1. **Offline preparation.** Python 3.11, pydicom and SimpleITK convert DICOM series into compressed int16 NIfTI and extract geometry and metadata. The design proposed cropping to the lung box plus a 10 mm margin and resampling to 1.25 mm. The implementation preserves native slice numbering. Lungmask supplies lung and lobe constraints; thresholding and connected components were considered as a fallback. RIDER expert RTSTRUCT and LIDC reader annotations supply the reference masks.
+2. **Registration and detection.** SimpleITK computes the baseline-to-follow-up transform. The design proposed affine alignment with Mattes mutual information and a separate matrix file. The implementation uses masked rigid-to-affine registration and stores the transform in case metadata. MONAI was considered; the optional precomputed candidate list uses a classical Hessian filter.
+3. **Static delivery.** A manifest indexes files under `web/app/public/cases/`. The original hosting alternatives were Vercel and Cloudflare Pages, with public object storage and CORS as a fallback. Vercel hosts the pilot. The preparation goals were deterministic runs, versioned products and de-identified public inputs.
+4. **Browser interaction.** React lists cases, and NiiVue draws axial CT plus overlays. The proposal included a small MPR view, a Web Worker for measurement and IndexedDB. The shipped measurement engine runs on the main thread and sessions use localStorage plus JSON export. Edits recompute measurements. The per-case timer excludes hidden, loading and idle periods and load errors.
+5. **Evaluation.** The original plan sketched a Python evaluation pipeline and results CSV. The shipped Node evaluator imports the browser’s TypeScript engine, writes JSON and feeds a Python report generator.
 
-```
- ┌─────────────── OFFLINE (במחשב של המפתח, Python) ───────────────┐
- │ TCIA (RIDER, RIDER-Seg, LIDC)                                   │
- │   │  download subset                                            │
- │   ▼                                                             │
- │ pipeline/                                                       │
- │   1. ingest     DICOM → NIfTI (int16, gzip), metadata → JSON    │
- │   2. crop       חיתוך לתיבת הריאות, resample לפרוסות של 1.25 מ"מ │
- │   3. lungmask   מסכת ריאות (שמאל/ימין)                           │
- │   4. reference  RTSTRUCT/SEG/LIDC XML → מסכות מומחה              │
- │   5. register   זוג בסיס→מעקב: affine על מסכות הריאה             │
- │   6. detect     מועמדים (אופציונלי, שבוע 3)                      │
- │   7. eval       מדדי דיוק ועקביות (offline)                      │
- │   ▼                                                             │
- │ public/cases/<case_id>/…  +  public/manifest.json               │
- └──────────────────────────────┬──────────────────────────────────┘
-                                │ build & deploy (static)
- ┌──────────────────────────────▼──────────────────────────────────┐
- │ BROWSER (React + Vite + NiiVue)                                  │
- │  CaseList ─► Viewer (NiiVue, WebGL2)                             │
- │                 │ click / threshold / brush                      │
- │                 ▼                                                │
- │            measure/ (TS, Web Worker)                             │
- │              regionGrow3D · axes · volume · solidCore            │
- │                 │                                                │
- │  FollowUp ◄── transforms from case files (affine + local snap)   │
- │                 ▼                                                │
- │            Session store (IndexedDB) ─► CSV export / session.json│
- │            Timer per case                                        │
- └──────────────────────────────────────────────────────────────────┘
-```
+## Proposed data contracts
 
-## 3. רכיבים
+The following sketches record the design-stage field names. Consult the shipped manifest, individual case metadata and `web/app/src/lib/session.ts` for the actual schemas.
 
-### 3.1 צינור עיבוד מראש (`pipeline/`, Python 3.11)
-| שלב | ספריות | קלט → פלט |
-|---|---|---|
-| ingest | pydicom, SimpleITK | סדרת DICOM → `ct.nii.gz` ו-`meta.json` |
-| crop/resample | SimpleITK | `ct.nii.gz` חתוך לתיבת הריאות עם שוליים של 10 מ"מ |
-| lungmask | lungmask (U-Net מאומן), ואם הוא נכשל: סף HU וחיבור רכיבים | `lungs.nii.gz` |
-| reference | pydicom-seg / rt-utils, pylidc | `ref_<reader>.nii.gz` לכל קשרית |
-| register | SimpleITK (affine, Mattes MI על המסכות) | `reg_<base>_to_<fu>.json` (מטריצה 4×4) |
-| detect | MONAI lung_nodule_ct_detection (שבוע 3, אם יש זמן) | `candidates.json` |
-| eval | numpy, pandas | `eval/results.csv` ו-`eval/report.md` |
-
-**כללים לצינור:**
-- כל הרצה דטרמיניסטית.
-- כל פלט מקבל `pipeline_version`.
-- שום PHI: הדאטה ב-TCIA כבר de-identified.
-
-### 3.2 אפליקציית ווב (`web/`, React + TypeScript + Vite)
-| מודול | אחריות |
-|---|---|
-| `CaseList` | רשימת המקרים מ-`manifest.json`, מסוננת לפי מקור, סוג ומקרה הוראה |
-| `Viewer` | עוטף את NiiVue: תצוגה צירית ראשית ו-MPR קטן, חלונות צפייה, שכבות overlay (כלי, מומחה, מועמדים) |
-| `measure/` | ב-Web Worker: `regionGrow3D(seed, lo, hi, lungMask)`, `axes(mask)`, `volume(mask)`, `solidCore(mask, hu)` |
-| `Edit` | מברשת להוספה ולמחיקה על המסכה, ואחריה חישוב מחדש |
-| `FollowUp` | ממפה נקודה מסריקת הבסיס לסריקת המעקב: affine, אחר כך חיפוש מקומי של 15 מ"מ על מפת דמיון, ואחר כך "הצמדה" לכתם |
-| `Session` | ב-IndexedDB: מדידות, אירועי עריכה וזמנים. ייצוא וייבוא של `session.json` |
-| `Export` | CSV בעמודות של דניאל, עם עמודת מקור וגרסה |
-| `Timer` | מתחיל בפתיחת מקרה ונעצר בייצוא או בסגירה. לא סופר זמן שבו החלון לא פעיל יותר מ-60 שניות |
-| `Banner` | "Research use only" ושורת ייחוס ל-TCIA |
-
-### 3.3 אחסון ופריסה
-- קבצים סטטיים על Vercel או Cloudflare Pages. ההכרעה תלויה בניסוי של Base44 (החלטה 11).
-- הסריקות נשמרות ב-`public/cases`. אם נפח הקבצים גדול מדי לאחסון, הן יעברו לאחסון אובייקטים ציבורי (R2) עם CORS.
-
-## 4. מודל נתונים
-
-### `manifest.json`
 ```json
 {
   "pipeline_version": "0.1.0",
@@ -123,7 +48,6 @@
 }
 ```
 
-### רשומת מדידה (בדפדפן)
 ```ts
 type Measurement = {
   caseId: string; noduleId: string; lobe?: string;
@@ -140,72 +64,21 @@ type Measurement = {
 };
 ```
 
-### CSV: העמודות של דניאל בדיוק, ועוד שלוש בסוף
-`patient_id, scan_date, timepoint, series, slice_thickness, nodule_id, lobe, image_number, type, long_axis_mm, short_axis_mm, mean_diameter_mm, solid_component_mm, volume_mm3, match_status, minutes, initials, notes` **+** `provenance, algo_version, params`
+CSV field order: `patient_id, scan_date, timepoint, series, slice_thickness, nodule_id, lobe, image_number, type, long_axis_mm, short_axis_mm, mean_diameter_mm, solid_component_mm, volume_mm3, match_status, minutes, initials, notes, provenance, algo_version, params`.
 
-## 5. אלגוריתמים, בפירוט
+## Algorithms
 
-### 5.1 קו מתאר בקליק (`regionGrow3D`)
-1. הסף מתחיל מ-HU של נקודת הקליק ושל סביבתה (קובייה של 5×5×5): `lo = max(-800, μ - 2σ)`, `hi = 400`. הסרגל משנה את `lo`.
-2. מילוי (flood fill) תלת-ממדי עם קישוריות 6, רק בתוך מסכת הריאות. זו החסימה של דופן החזה.
-3. פתיחה מורפולוגית ברדיוס 1 voxel, שמנתקת כלי דם דקים. אחר כך נשאר רק הרכיב שמכיל את נקודת הקליק.
-4. אם המסכה יוצאת מתיבה של 60 מ"מ, היא "דלפה". המדידה מסומנת Uncertain, ומוצעת העלאה של `lo`.
-5. כל החישוב נעשה בתוך קובייה של 80 מ"מ סביב נקודת הקליק, ולכן הוא לוקח פחות משנייה.
+- **Outline.** The initial sketch estimated the lower threshold from a 5×5×5 neighbourhood using max(−800, μ − 2σ), with an upper limit of 400 HU. Six-connected flood filling inside the lung mask, a one-voxel morphological opening and seed-component retention were intended to isolate the lesion. The sketch proposed an 80 mm work cube and a 60 mm leak criterion. Shipped thresholds, retry rules and the 120 mm work cube are documented in [the decision log](junctions.md).
+- **Axes and volume.** Multiply the voxel count by the physical voxel volume. On the largest axial cross-section, measure the maximum contour separation on the convex hull and the largest perpendicular width. Draw the calipers and report their arithmetic mean.
+- **Solid core.** Apply a user-adjustable HU threshold within the lesion and measure the longest diameter of the dense region. Daniel reviews it in the lung window. A manual correction changes row provenance to edited.
+- **Follow-up.** Transform the baseline seed into follow-up coordinates and search within 15 mm. The design proposed local normalized cross-correlation followed by snapping and region growing. The implementation ranks nearby candidates by distance and volume and flags ambiguous matches.
 
-### 5.2 צירים ונפח
-- **נפח:** מספר ה-voxels כפול נפח voxel.
-- **פרוסת המדידה:** הפרוסה הצירית שבה שטח המסכה הכי גדול.
-- **ציר ארוך:** המרחק המקסימלי בין שתי נקודות על קו המתאר בפרוסה. מחושב על ה-convex hull.
-- **ציר קצר:** הרוחב המקסימלי בכיוון שניצב לציר הארוך.
-- **mean:** הממוצע של שני הצירים.
-- הצירים מצוירים על המסך, כמו קליפר.
+## Evaluation plan
 
-### 5.3 רכיב solid
-- הצעה: החלק בתוך המסכה שבו HU גדול מ-`solidHu`. ברירת המחדל תכויל על מקרי part-solid ב-LIDC.
-- מהחלק הזה מחושב הקוטר הארוך ביותר, בחלון ריאה.
-- דניאל מאשר או מתקן. כל תיקון משנה את המקור ל-edited.
+Compare both axes, Dice overlap and volume against RIDER manual annotations and LIDC readers, grouped by teaching-case type. Target approximately 1 mm repeatability on RIDER. Count false candidates and charge for their review. Compare baseline and follow-up time separately, targeting roughly half the manual follow-up time. Thresholds were recorded before scoring in [the thresholds file](eval/thresholds.yaml). The proposed 2–3 longitudinal LIDC cases lacked independent matching labels.
 
-### 5.4 התאמה בסריקת המעקב
-1. הנקודה מסריקת הבסיס מועברת לסריקת המעקב דרך מטריצת ה-affine שחושבה מראש.
-2. חיפוש מקומי ברדיוס 15 מ"מ: הכלי מחפש את המיקום שבו הקובייה סביב הנקודה הכי דומה לקובייה בסריקת הבסיס (NCC).
-3. "הצמדה" לכתם הצפוף הקרוב ביותר, ואז `regionGrow3D`.
-4. אם הדמיון קטן מסף שנקבע מראש, או אם נמצאו שני כתמים קרובים, ההתאמה מסומנת Uncertain.
+## Delivery plan and constraints
 
-## 6. הערכה (offline, `pipeline/eval`)
-| מדד | נגד מה | יעד |
-|---|---|---|
-| הפרש בציר ארוך ובציר קצר, במ"מ | קו המתאר של RIDER-Seg, והקוראים ב-LIDC | קטן מהפער בין הקוראים ב-LIDC (38) |
-| Dice, והפרש נפח באחוזים | אותו דבר | מדווח לפי סוג מקרה (40) |
-| עקביות בין שתי הסריקות | זוגות RIDER | הפרש של עד כ-1 מ"מ (39) |
-| הצלחת התאמה | זוגות RIDER, ו-2–3 מקרי מעקב מ-LIDC | אחוז ההתאמות הנכונות |
-| מועמדים שגויים לכל סריקה | RIDER בלבד | מדווח, ומקוזז מהחיסכון (45) |
-| זמן | ניסוי מתוזמן ומודל זמן | חיסכון של כ-50% בסריקות מעקב (1, 42–44) |
+Week one milestones were reference-series verification and a platform trial on day one, a public case with an expert overlay on day two, click measurement on day three, and brush, session, timer and CSV on day four. Day five targeted expansion to roughly ten RIDER cases and a deployed link. Week two covered matching, LIDC cases, evaluation and a proposed one-day MedSAM trial. Week three covered detection, human timing, reporting and demo preparation. The [implementation decisions](decisions.md) distinguish delivered work from proposed trials.
 
-הספים נקבעים לפני ההרצה, ב-`eval/thresholds.yaml` (41).
-
-## 7. מבנה הריפו
-```
-longmarker/
-  decisions.md  architecture-review.md  design.md  README.md
-  pipeline/   ingest.py crop.py lungmask.py reference.py register.py detect.py eval/
-  web/        src/{CaseList,Viewer,measure,FollowUp,Session,Export}/ public/{manifest.json,cases/}
-  data/       (gitignored) raw TCIA downloads
-```
-
-## 8. תוכנית לשבוע 1
-| יום | משימה | יציאה |
-|---|---|---|
-| 1 | לאמת סדרות ועובי פרוסה ב-RIDER-Seg. להוריד 2 מטופלים. ניסוי Base44 של חצי יום | החלטה על פלטפורמה. אומת שיש ground truth |
-| 2 | ingest, crop, lungmask, reference למטופל אחד. NiiVue מציג CT עם קו המתאר המומחה | מקרה ראשון בדפדפן |
-| 3 | `regionGrow3D`, צירים ונפח ב-Worker. סרגל ספים | מדידה בקליק עובדת |
-| 4 | מברשת, CSV, Timer, Session. באנר וייחוס | זרימה מלאה למקרה אחד |
-| 5 | להרחיב לכ-10 מקרי RIDER. Deploy. עדכון ל-#base44-internal עם לינק | **לינק עובד** |
-
-שבוע 2: התאמה בסריקת המעקב, תת-הקבוצה של LIDC, eval, ויום ניסוי של MedSAM.
-שבוע 3: איתור, ניסוי הזמנים, דוח וליטוש הדמו.
-
-## 9. ממה צריך להיזהר, ומה לבחון שוב כשהכלי יגדל
-- **GGO:** ייתכן ש-region growing לא יחזיק ב-GGO. אם כך, MedSAM יורץ מראש כ"הצעה שנייה".
-- **נפח אחסון:** אם האחסון הסטטי מוגבל, הסריקות יעברו לאחסון אובייקטים.
-- **סריקות אמיתיות (שלב 2):** צריך פענוח DICOM בדפדפן או שירות מקומי. `measure/` כבר רץ בדפדפן, אבל רישום ואיתור יצטרכו להריץ בדפדפן גרסה קלה (ONNX-web) או שירות שאושר על ידי IT.
-- **יותר ממשתמש אחד ושיתוף:** כרגע הכל בקובץ session. אם המעבדה תרצה עבודה משותפת, יידרש backend, ואולי כאן Base44 ייכנס בטבעיות.
+A second outline suggestion was considered for faint ground-glass nodules. Public object storage is an option if static hosting limits are reached. Real hospital scans would need local DICOM decoding and browser-side processing such as ONNX Web or an approved local service. Shared multi-user sessions would require a backend.

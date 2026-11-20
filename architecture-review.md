@@ -1,119 +1,30 @@
-# LongMarker: סקירת ארכיטקטורה של decisions.md
+# Architecture review of the pilot decisions
 
-**תאריך:** 2026-11-17 · **סטטוס:** הצעה, עד לאישור של שמחה
+Review date: November 17, 2026. This records proposals submitted for Simcha’s approval. The [decision log](decisions.md) records subsequent implementation choices.
 
-## תמונה כללית
+The lab’s goals and workflow supported decisions 1–7. Preloaded cases changed the server trade-off in decisions 10 and 13. The viewer and difficult-case strategy needed concrete choices. Other open issues included reference series thickness, optimistic same-day matching and an unconfirmed submission date.
 
-| נושא | החלטות | הערכה |
-|---|---|---|
-| מטרה והיקף | 1–4 | ✅ חזק. מעוגן במילים של הלקוח |
-| משתמשים וזרימת עבודה | 5–7 | ✅ |
-| פלטפורמה וארכיטקטורה | 8–13 | ⚠️ יש סתירה פנימית בין החלטה 10 להחלטה 13 (ADR-1). החלטה 11 עמומה (ADR-2, ADR-4) |
-| דאטה | 14–18 | ⚠️ יש סיכון לא מאומת בהחלטה 15 |
-| מדידה | 19–23 | ⚠️ בהחלטה 20 חסרה תוכנית חלופית למקרים הקשים (ADR-3) |
-| התאמה בסריקת המעקב | 24–27 | ⚠️ ההערכה על RIDER מנפחת את התוצאה |
-| איתור | 28–30 | ✅ זהיר ונכון |
-| אמון, ייצוא, הערכה | 31–45 | ✅ עם שני חסרים (ראו "החלטות חסרות") |
-| מסירה | 46–49 | ⚠️ מועד ההגשה ל-Base44 לא ידוע |
+## ADR-1. Precompute and serve static files
 
----
+The initial proposal used a small live service for registration and detection. All inputs were already known. Running Python ahead of time and storing transforms and candidates alongside scans removes the API, queues, cold starts and ongoing server operation. A live service would ease later API reuse but add complexity and demo risk. Keep interaction in the browser and report offline runtime separately. User-supplied scans would require a new ingestion path. Update decisions 10 and 29.
 
-## ADR-1: שרת חי מול צינור עיבוד מראש ואתר סטטי
+## ADR-2. Use NiiVue
 
-**Context:** החלטה 10 קובעת שרת קטן לרישום ולאיתור. החלטה 13 קובעת שכל מקרי הפיילוט טעונים מראש, והמשתמש לא מעלה סריקות. כלומר, כל קלט שהשרת יקבל ידוע מראש.
+NiiVue reads NIfTI natively and provides basic drawing with a smaller learning curve. Cornerstone3D/OHIF offers richer segmentation and native DICOM at a higher integration cost within three weeks. Extract patient ID, date, series and thickness to JSON. Direct hospital DICOM support may later require conversion or a different viewer.
 
-| | A: שרת חי (ההחלטה הנוכחית) | B: עיבוד מראש ואתר סטטי |
-|---|---|---|
-| מורכבות | בינונית: API, אחסון, תורים | נמוכה: סקריפט Python וקבצים סטטיים |
-| עלות | שכבה חינמית עם cold start | אפס |
-| סיכון בדמו | גבוה: cold start או timeout מול נאומי | כמעט אפס |
-| תחזוקה | יש | אין |
-| מוכנות לשימוש עתידי | קוד ה-API | אותו קוד Python רץ בהמשך כשירות |
+## ADR-3. Give the researcher segmentation controls
 
-**Decision:** B. הרישום והאיתור ירוצו מראש על המקרים הטעונים, והתוצאות יישמרו לצד הסריקות: מטריצת רישום ורשימת מועמדים לכל סריקה. כל מה שאינטראקטיבי ירוץ בדפדפן.
+Compare plain region growing, region growing with controls, and a click-based model such as MedSAM. The first struggles with ground-glass, attached and spiculated lesions. The second adds an adjustable threshold, a precomputed lung mask and an add/erase brush. The third takes longer to integrate, and fully precomputed inference limits free click placement. Adopt the controls and propose a one-day ground-glass model trial in week two. Charge for manual corrections and report outcomes by case type.
 
-**Consequences:**
-- אין שרת שאפשר שייפול בדמו, וזה מתאים ל-"nothing to maintain".
-- המשתמש לא יכול להעלות סריקה משלו. זה עקבי עם החלטה 9, וצריך לכתוב את זה בדוח.
-- זמן החישוב לא נכלל במדידת הזמן. צריך לציין זאת במפורש, ולמדוד אותו בנפרד בצינור.
-- **צריך לעדכן:** החלטות 10 ו-29.
+## ADR-4. Test Base44 integration before selecting a platform
 
----
+The proposal was a half-day trial of embedding NiiVue and loading a public volume. A successful trial would support a Base44 implementation. Otherwise, document the integration limit and use a dedicated static app. Simcha subsequently chose React/Vite directly; the trial did not run.
 
-## ADR-2: איזה viewer
+## Follow-up items from the review
 
-**Context:** החלטה 11 אומרת "viewer מבוסס WebGL" בלי לבחור ספרייה. הדאטה מומר מראש (החלטה 13), אז לא צריך לפענח DICOM בדפדפן.
-
-| | NiiVue | Cornerstone3D / OHIF |
-|---|---|---|
-| משקל ולמידה | קל, API פשוט | כבד, עקומת למידה ארוכה |
-| פורמט | NIfTI כפורמט טבעי | DICOM כפורמט טבעי |
-| ציור ותיקון | כלי ציור בסיסיים מובנים | כלי סגמנטציה עשירים |
-| התאמה ל-3 שבועות | גבוהה | בינונית |
-
-**Decision:** NiiVue עם קבצי NIfTI דחוסים. המטא-דאטה של DICOM (patient ID, date, series, thickness) יחולץ מראש לקובץ JSON.
-
-**Consequences:** פיתוח מהיר. כלי התיקון יהיו פשוטים יותר. אם בעתיד יידרש DICOM ישיר מבית החולים, נצטרך שכבת המרה או מעבר ל-Cornerstone.
-
----
-
-## ADR-3: שיטת הסגמנטציה
-
-**Context:** החלטה 20 בוחרת region growing קלאסי. אבל 4 מתוך 8 מקרי ההוראה הם בדיוק המקרים שבהם השיטה הזו ידועה ככושלת: GGO עמום, קשרית ליד כלי דם, קשרית צמודה לדופן או לריאה קורסת, ו-spiculated.
-
-| | A: קלאסי בלבד | B: קלאסי עם בקרות ותיקון | C: מודל מבוסס קליק (למשל MedSAM), שרץ מראש |
-|---|---|---|---|
-| GGO ומקרים צמודים | חלש | בינוני, הפער נסגר בעזרת תיקון | טוב יותר, לא מוכח |
-| זמן פיתוח | נמוך | נמוך עד בינוני | גבוה |
-| רץ בדפדפן | כן | כן | רק מראש, וזה מתנגש בקליק חופשי |
-
-**Decision:** B כברירת מחדל:
-- region growing עם סרגל ספים שמשנה את התוצאה בזמן אמת.
-- "חסימה" אוטומטית של דופן החזה בעזרת מסכת ריאות שמחושבת מראש.
-- מברשת להוספה ולמחיקה.
-
-C נבחן ב-spike של יום אחד בשבוע 2, ורק על GGO.
-
-**Consequences:** הדיוק במקרים הקשים יבוא חלקית מהתיקון של דניאל. זה עקבי עם החלטה 2, אבל מקטין את החיסכון במקרים האלה, ולכן הדוח צריך להציג זאת לפי סוג מקרה (החלטה 40).
-
----
-
-## ADR-4: Base44 או אפליקציה ייעודית
-
-**Context:** החלטה 11 מוציאה את Base44 מחלק 1. המטלה אומרת "Base44 is welcome", וזה ראיון ב-Base44. לא בדקנו אם Base44 מאפשר להטמיע ספרייה כמו NiiVue או לטעון קבצים בנפח של עשרות MB.
-
-**Decision:** spike של חצי יום בתחילת שבוע 1, עם תנאי עצירה:
-- **אם Base44 מריץ את NiiVue וטוען volume ציבורי:** האפליקציה כולה נבנית ב-Base44.
-- **אחרת:** אפליקציה ייעודית על אחסון סטטי חינמי, ובדוח מתועד בדיוק איפה Base44 נעצר.
-
-**Consequences:** כך ההחלטה נשענת על ראיה ולא על הנחה. בכל מקרה מתקבלת תובנה אמיתית לסעיף "what it was like to build on Base44".
-
----
-
-## ממצאים נוספים
-
-1. **החלטה 15, סיכון לא מאומת.** לא ידוע על אילו סדרות צוירו קווי המתאר של RIDER-Seg, ומה עובי הפרוסה שלהן. זו המשימה הראשונה ביום הראשון. אם הן בעובי 5 מ"מ, היעד של כ-1 מ"מ בהחלטה 39 צריך להשתנות.
-2. **החלטות 25 ו-39, אופטימיות.** ב-RIDER שתי הסריקות נעשו באותו יום, אז הרישום והעקביות ייראו טובים יותר מאשר במעקב אמיתי של חודשים. ב-LIDC יש 8 מטופלים עם שתי נקודות זמן. כדאי להוסיף 2–3 מהם כמבחן מעקב אמיתי, ולכתוב את המגבלה בדוח.
-3. **החלטה 25, שיטת הרישום.** רישום affine של מסכות הריאה, ואחריו חידוד מקומי סביב הנקודה מסריקת הבסיס, ואז "הצמדה" לכתם הקרוב. רישום של כל הריאה לבד לא מספיק לנשימה שמזיזה את הפרוסות.
-4. **החלטה 26, ייבוא שורה מהגיליון.** מספרי התמונות בגיליון של דניאל שייכים ל-viewer של בית החולים, ובפיילוט אין סריקות כאלה. כדאי לדחות את זה לשלב 2 ובמקום זה לייבא את סריקת הבסיס מהכלי עצמו.
-5. **החלטה 12, שמירה בדפדפן.** ניקוי של הדפדפן מוחק את העבודה ואת נתוני הזמן. צריך להוסיף שמירה וטעינה של קובץ session (JSON), וייצוא של נתוני הזמן.
-6. **החלטה 43, הטיה בניסוי הזמנים.** ה-FDE הוא גם מי שבנה את הכלי וגם לא רדיולוג. לכן מדווחים יחס ולא דקות מוחלטות, ומעגנים את המספרים המוחלטים בדקות של דניאל (החלטה 44).
-
-## החלטות חסרות
-
-- **גרסת אלגוריתם בכל שורה.** כל שורה ב-CSV צריכה לכלול את גרסת האלגוריתם ואת הפרמטרים (ספים). בלי זה, ניתוח גדילה על פני חודשים לא ניתן לשחזור, ומדידה בגרסה 1 ומדידה בגרסה 2 של אותו מטופל לא ניתנות להשוואה.
-- **תקציב ביצועים.** טעינת מקרה תוך פחות מ-5 שניות, ותגובה לקליק תוך פחות משנייה. בדמו חי זה מה שנאומי תרגיש.
-- **תאימות דפדפן.** צריך WebGL2. לבדוק ב-Chrome וב-Edge.
-- **חלונות צפייה מוגדרים מראש.** חלון ריאה וחלון mediastinum. דניאל מודד את רכיב ה-solid בחלון ריאה.
-
-## ההמלצה
-
-| החלטה | שינוי |
-|---|---|
-| 10 | → אתר סטטי, רישום ואיתור מחושבים מראש (ADR-1) |
-| 11 | → NiiVue (ADR-2), ו-spike של Base44 לפני ההכרעה (ADR-4) |
-| 20 | → קלאסי עם סרגל ספים, מסכת ריאות ומברשת. spike של MedSAM על GGO (ADR-3) |
-| 26 | → לשלב 2 |
-| 12 | + שמירה וטעינה של קובץ session |
-| חדש | גרסת אלגוריתם בכל שורה, תקציב ביצועים, חלונות צפייה |
-| 15 | אימות של סדרות RIDER-Seg ביום הראשון |
+- Verify the RIDER-Seg reference series on day one. Five-millimetre slices would make the proposed 1 mm repeatability target difficult to interpret.
+- Same-day pairs favour registration. Investigate two or three of the eight longitudinal LIDC patients and document any limitations. J15 records the independent-reference problem.
+- Use affine alignment followed by local refinement and snapping for breathing shifts. Defer hospital spreadsheet import until viewer image numbering can be reconciled.
+- Export and restore a JSON session, including timing data, so cleared browser storage is recoverable.
+- The proposed timing participant built the tool and is not a radiologist. Report ratios, anchor absolute times to Daniel’s estimates and disclose participant bias.
+- Add algorithm version and thresholds per CSV row, WebGL2 checks in Chrome and Edge, lung and mediastinum windows, and budgets of five seconds per load and one second per click.

@@ -1,96 +1,42 @@
-# LongMarker: בריף טכני
+# LongMarker technical brief
 
-**לינק:** https://longmarker.vercel.app (פתוח, בלי התחברות) · **קוד:** https://github.com/binim10/longmarker (פרטי, לפי הזמנה) · **לשימוש מחקרי בלבד.**
+[Live research pilot](https://longmarker.vercel.app/) · [Private source repository](https://github.com/binim10/longmarker)
 
-## 1. הבעיה, במילים של הלקוח
-- **הצוואר:** דניאל משקיע 25–40 דקות בכל סריקה, ומחכות לו 540 סריקות. הזמן מתחלק כך:
-  - איתור: 10–20 דקות.
-  - מדידה: 2–4 דקות לכל קשרית, כולל ציור ידני בכל פרוסה כדי לחשב נפח.
-  - רישום בגיליון: 3–5 דקות.
-  - בסריקות מעקב, שהן הרוב, עוד כ-10 דקות של התאמה.
-- **הצלחה, לפי נאומי:** "Daniel's time per scan roughly halved without any drop in accuracy", ודמו חי שהיא פותחת לבד.
-- **אמון, לפי דניאל:** לראות את הסימון ליד קו המתאר של המומחה, לתקן ביד, ולייצא ישר לגיליון.
-- **אילוצים:** כלי ווב, בלי IT, בלי תקציב, בלי תחזוקה. בפיילוט רק דאטה ציבורי.
+## The lab’s workflow
 
-## 2. איך המערכת בנויה
-```
- OFFLINE (Python, pipeline/)                         BROWSER (React + NiiVue, web/app/)
- TCIA: RIDER + RIDER-Seg + LIDC-IDRI                 Case list (manifest.json)
-   → DICOM → NIfTI (int16, gzip), crop to lungs        → NiiVue axial viewer (WebGL2)
-   → expert masks (GTVp_*_man / LIDC readers)          → click → measure.ts (region growing in the lung mask,
-   → lungmask U-Net: lung constraint + lobes              opening + reconstruction, auto-retry on leak/vessel)
-   → registration baseline→follow-up (rigid→affine)    → axes (edge-to-edge calipers), volume, solid part, lobe
-   → meta.json (geometry, matrix, tags)                → brush / erase / threshold / undo → provenance
-            │ static files                             → follow-up: matrix + snap to blob ≤15 mm
-            ▼                                          → session (localStorage + JSON file) → CSV in Daniel's columns
- Vercel (static, production)  ◄──────────────────────  per-case activity timer → `minutes`
-```
-- **אין שרת חי.** כל מה שכבד (מסכות U-Net, רישום) מחושב מראש. כל מה שאינטראקטיבי רץ בדפדפן.
-- **מנוע מדידה אחד.** `src/lib/measure.ts` הוא TypeScript טהור. אותו קוד רץ בדפדפן ובהערכה ב-Node (`eval/eval.ts`), כך שהמספרים בדוח הם המספרים שדניאל יראה במסך.
+Daniel reported 25–40 minutes per scan and about 540 scans waiting. Finding nodules takes 10–20 minutes, measurement takes 2–4 minutes per nodule, including contouring slices for volume, and recording takes 3–5 minutes. Follow-ups add about ten minutes for matching. Naomi wants manual time roughly halved while maintaining accuracy, with a demo she can open independently. Daniel asked for expert overlays, manual correction and export to his existing sheet. The pilot uses public data and requires no installation or hospital IT.
 
-## 3. צמתי ההחלטה המרכזיים, ולמה
-בכל צומת נבחנו שלוש דרכים והתקבלה הכרעה אחרי התייעצות עם Advisor. הפירוט המלא נמצא ב-[junctions.md](junctions.md), וכל ההחלטות ב-[decisions.md](decisions.md).
+## Architecture and decisions
 
-| צומת | שלוש הדרכים | נבחר | למה (ראיה) |
-|---|---|---|---|
-| איפה לבנות | Base44 / אפליקציה ייעודית / מעטפת Base44 עם viewer | ייעודית | בחירה של שמחה. viewer תלת-ממדי ועיבוד תמונה דורשים שליטה מלאה |
-| שרת או סטטי | שרת חי / עיבוד מראש ואתר סטטי / דפדפן בלבד | עיבוד מראש ואתר סטטי | כל המקרים ידועים מראש. אין שרת שיכול ליפול בדמו של נאומי. אפס תחזוקה |
-| Ground truth ב-RIDER | `_man` / `_auto` / SEG ו-QIN | `_man` | שתי האחרות הן פלט של אלגוריתם. אומת על CT בעובי 1.25 מ"מ עם kernel של LUNG |
-| viewer | NiiVue / canvas ייעודי / Cornerstone3D | NiiVue | עבר בדיקת הלוך-חזור: voxel זהה, ו-147,321 מתוך 147,321 voxels זהים בשכבת הציור |
-| נפח הקבצים | רזולוציה מלאה / הקטנה פי 2 / slabs | מלאה, ועוד טעינה מראש | 3.3–3.6 שניות לטעינה בפרודקשן. הקטנה פי 2 שקולה לרף של 1 מ"מ |
-| מסכת הריאות | hull / closing / U-Net | U-Net לבד | hull כיסה 70% מהגידול. ה-union עם hull דלף ל-mediastinum. U-Net כיסה 99.4–100% |
-| דליפה לכלי דם | סף קבוע / opening חזק / ניסוי חוזר עם בדיקת צורה | ניסוי חוזר | קשרית של 12 מ"מ: 60×8 מ"מ ב-−450 HU, ו-12.5×10.3 מ"מ (לעומת 12.8×9.6 של המומחה) אחרי ניסוי חוזר |
-| רישום | GEOMETRY ו-affine / MOMENTS ו-rigid→affine עם מסכה / B-spline | MOMENTS ו-rigid→affine | 27.6 מ"מ לעומת 3.6–4.5 מ"מ, כשבלי רישום בכלל יצא 21.9 |
-| התאמה במעקב | NCC מול סריקת הבסיס / snap לכתם לפי מרחק ונפח / ידני | snap לכתם | בלי טעינה של סריקה שנייה. Uncertain אם יש שני מועמדים קרובים או שהנפח שונה פי 2 ומעלה |
-| מקור ה-LIDC | XML / pylidc / מסכות מצד שלישי | pylidc | 3–4 קוראים לכל קשרית. consensus של רוב הקוראים, ונשמר קו מתאר לכל קורא כדי למדוד את הפער ביניהם |
-| פריסה | Vercel CLI / Vercel דרך git / MCP | CLI | volumes של מאות MB לא נכנסים ל-git |
+Python converts DICOM to cropped compressed int16 NIfTI, extracts expert masks and metadata, runs the lung/lobe U-Net, and computes rigid-to-affine registration. The React/NiiVue viewer loads these static files and measures a researcher-selected nodule using connected region growing inside the lung mask. Opening, reconstruction and retries reduce vessel leakage. The researcher can edit the mask, inspect axes and volume, match a follow-up within 15 mm and export the result. Local storage and JSON session files preserve progress. The same TypeScript engine runs in Node for evaluation.
 
-## 4. תוצאות
-ראו את [eval/report.md](eval/report.md). הבדיקה מול הוראות Base44 נמצאת ב-[COMPLIANCE.md](COMPLIANCE.md). את הדוח מייצר `eval/report.py` מתוך `eval/results.json`, והספים נקבעו מראש ב-`eval/thresholds.yaml`.
+Simcha chose a dedicated app for control over 3D viewing and image processing. Precomputation suits a known dataset and removes the need for a live inference service. Manual RIDER contours and individual LIDC reader masks supply reference measurements. NiiVue passed file-coordinate and drawing checks. Native resolution preserves image numbers and measurement precision. A lung U-Net constrained growth more effectively than a hull. MOMENTS-initialized registration and candidate ranking by distance and volume improved repeat localization without loading a second CT. The initial CLI deployment evolved into a checksum-verified Git build. See the [engineering comparisons](junctions.md), [decision record](decisions.md) and [run instructions](README.md).
 
-**הסתייגות:** את ברירת המחדל של הסף כיילתי רק על סריקות ה-test. אבל כללי הניסיון החוזר (GGO, opening ב-3D, סימון מעל 30 מ"מ) פותחו מול אותן 21 קשריות, ואין סט שהכלי לא ראה בפיתוח. לכן המספרים כאן אופטימיים.
+## Results and limitations
 
-**הדאטה:** 21 קשריות ב-19 סריקות. מ-RIDER נלקחו 7 זוגות של בדיקה וחזרה מאותו יום, עם גידולים של 13–68 מ"מ. מ-LIDC נלקחו 5 סריקות עם 7 קשריות: שתיים ground-glass, אחת part-solid, אחת spiculated, אחת solid קטנה ועדינה, ושתיים solid קלות.
+The pilot includes 21 nodules in 19 scans: seven same-day RIDER pairs (13–68 mm tumours) and seven LIDC nodules across five scans. The edge threshold was calibrated on RIDER test scans. Several retry rules were developed against the reported cohort, so these results are optimistic. The [evaluation report](eval/report.md) is generated by `eval/report.py` from `eval/results.json`. The planned thresholds are in `eval/thresholds.yaml`.
 
-| מדד | תוצאה | הרף שנקבע מראש |
+| Measure | Result | Target or interpretation |
 |---|---|---|
-| התאמה בסריקת המעקב: הקשרית הנכונה | **7/7** (שגיאת רישום 1.0–4.5 מ"מ) | ≥90% |
-| ציר ארוך בתוך טווח הרדיולוגים ב-LIDC | **5/7**, כולל GGO אחת, part-solid ו-spiculated | בתוך טווח הקוראים ±0.5 מ"מ |
-| עקביות בין בדיקה לחזרה (ציר ארוך, חציון) | **1.3 מ"מ**, לעומת 1.4 מ"מ של המומחה עצמו | ≈1 מ"מ |
-| זמן טעינת מקרה בפרודקשן | פתיחה ראשונה בדפדפן: 3.3–3.6 שניות. הורדה קרה של המקרים הגדולים (46–59MB) ב-`curl` במועד מאוחר יותר: 4.5–5.0 שניות. כלומר, עומד ברף בחיבור מהיר וגבולי בכ-10MB/s. המקרה הבא נטען מראש | 5 שניות |
-| זמן מקליק עד קו מתאר | חציון 0.4 שניות, מקסימום 1.7 | שנייה אחת |
-| מדידות שסומנו Uncertain | 38% | — |
-| שגיאות "שקטות" (מעל max(1.5 מ"מ, 10%) בלי סימון) | 5/21, כולן 2–3.4 מ"מ | — |
+| Same-day matching | 7/7 had at least one voxel of expert-mask overlap; four required confirmation. Registration error 1.0–4.5 mm. | At least 90% localization success. Overlap alone says little about outline quality. |
+| Long-axis agreement | 5/7 LIDC nodules within reader range ±0.5 mm; 8/21 overall within max(1.5 mm, 10%) of expert measurement. | Reader spread and single-reference agreement are separate comparisons. |
+| Test–retest repeatability | Median absolute difference 1.3 mm; expert 1.4 mm. | Approximately 1 mm. |
+| Interactive outline | Median 0.4 s, maximum 1.7 s. | One second. |
+| Load time | Early browser checks 3.3–3.6 s. Later cold downloads of 46–59 MB cases took 4.5–5.0 s. | Five seconds; connection and prefetch affect timing. |
+| Review burden | 38% flagged. Five of 21 measurements exceeded tolerance without a flag, by 1.9–3.4 mm. | Review all measurements. |
 
-**זמן, לפי מודל ולא מדידה:**
-- **סריקת מעקב:** מ-33.5 ל-14.2 דקות, כלומר **−57%**. אבל המודל מגיע לחצי רק אם "Find" גם מקצר את החיפוש, וזו ההנחה שהכי חשוב לבדוק. בלי הקיצור הזה יוצא 20.2 דקות, כלומר −40%. הניסוי המתוזמן עוד לא נעשה.
-- **סריקת בסיס:** מ-23.5 ל-18.1 דקות, כלומר **−23%**, כי אין גלאי.
-- **הנחות המודל:** החיסכון ברישום, במדידה ובהתאמה נמדד בכלי. הוא כולל 2 דקות תיקון לכל מדידה שמסומנת או שגויה, ו-2 דקות אישור לכל התאמה מסומנת. בסריקת מעקב, החיפוש מתקצר ל-60% בזכות "Find".
-- **הערכה מבוססת ספירת פעולות (הרצתי אותה בעצמי, ואינה ניסוי על אדם):**
-  - **מה נספר:** קליקים, בדיקות, ופרוסות שדורשות תיקון במברשת. נספרו ממש על 21 הקשריות. ההמרה לזמן לפי KLM.
-  - **סריקת מעקב:** מ-32 דקות ל-11.6–15.9 (−50% עד −64%). בלי ההנחה ש-Find מקצר את החיפוש: 21.9 דקות (−32%).
-  - **סריקת בסיס:** מ-22 דקות ל-15.8–17.0 (−23% עד −28%).
-  - **החריג:** בגידול גדול ומרכזי (24–97 פרוסות לתיקון), הכלי **איטי** מהעבודה הידנית, עד 40 דקות.
-- **מה עוד חסר:** המספר הזה צריך אישור בניסוי מתוזמן על אדם. דניאל אמר שרוב 540 הסריקות הן סריקות מעקב, אבל החלוקה המדויקת לא ידועה.
+## Time saved
 
-## 5. מה עובד ומה לא
-**עובד:**
-- **קליק ומדידה.** 3D, צירים, נפח, אונה ו-solid part בפחות משנייה. התוצאות טובות במיוחד בקשריות solid של 12–20 מ"מ (Dice 0.76–0.85).
-- **השוואה למומחה.** הצגה זה לצד זה, ותיקון במברשת, ב-threshold או ב-undo. המקור (provenance) מתעדכן אוטומטית.
-- **"Find" בסריקת המעקב.** מצא את הקשרית הנכונה ב-7 מתוך 7 זוגות.
-- **CSV.** בעמודות של דניאל, עם `minutes` אוטומטי ועם גרסה ופרמטרים, כך שאפשר לשחזר כל ערך.
-- **בלי התקנה ובלי IT.** לינק פתוח, אתר סטטי.
+The stage-based model estimates 33.5 → 14.2 minutes per follow-up (57%) when Find reduces visual search to 60% of baseline. With no search gain the estimate is 20.2 minutes (40%). Baseline scans are estimated at 23.5 → 18.1 minutes (23%). The model budgets two minutes for corrections to flagged or erroneous outlines and two minutes for confirmation of a flagged match.
 
-**לא עובד או חלש:**
-- **גידולים גדולים ומרכזיים (מעל 30 מ"מ).** קו המתאר דולף ל-mediastinum וכלי הדם, ויוצא גדול פי 1.4–2.3. המדידות האלה תמיד מסומנות Uncertain, ודורשות תיקון במברשת.
-- **GGO עמום.** מצליח בחלק מהמקרים: 8.0 מ"מ לעומת 8.5 במקרה אחד. במקרה אחר נמדד 10.6 מ"מ לעומת 6.8, ושם המדידה כן סומנה Uncertain.
-- **הטיה שיטתית ב-LIDC.** הכלי "הדוק" יותר מהרדיולוגים, בערך 2 מ"מ פחות בציר הארוך, כי הם מציירים על הגבול החיצוני. זה המקור העיקרי לשגיאות השקטות.
-- **צמידות לכלי דם.** בקשרית אחת של 12 מ"מ, בסריקה החוזרת, הכלי טפס על כלי דם (57 מ"מ). המדידה סומנה, אבל זה הפיל את מדד העקביות של אותו מטופל.
-- **הגלאי חלש.** הגלאי הניסיוני (J14) מוצא 11/21 קשריות ב-10 המועמדים הראשונים, עם כ-9.4 מועמדים שגויים לכל סריקה, ו-0/2 ב-GGO. הוא כבוי כברירת מחדל, כך שבסריקות בסיס עדיין מוצאים את הקשריות ביד.
-- **הרישום נבדק רק על סריקות מאותו יום.** מבחן של חודשים לא הורץ: ב-LIDC הפרוסות בזוגות האלה בעובי 3 מ"מ, ואין דרך לזהות את אותה קשרית בשתי נקודות הזמן בלי להסתמך על הרישום עצמו (J15).
+A separate interaction-count estimate counted clicks, reviews and brush slices across the 21 nodules and converted them to time using KLM. Follow-ups fell from 32 to 11.6–15.9 minutes (50–64%), or 21.9 minutes (32%) without faster search. Baselines fell from 22 to 15.8–17.0 minutes (23–28%). Large central tumours could require 24–97 corrected slices and up to 40 minutes. A human timed study is pending. The exact baseline/follow-up split in the backlog is unknown.
 
-## 6. מה הלאה
-- **ניסוי מתוזמן.** ל-10 מקרים, לפי `eval/timed-study.md`. אדם צריך להריץ אותו. המספרים בדוח הם מודל ולא מדידה.
-- **איתור בסריקות בסיס.** להחליף את המסנן הקלאסי בגלאי מאומן, שייבדק רק על מקרים שהוא לא ראה באימון (החלטה 29).
-- **מעקב של חודשים.** הוספה של מקרים מ-LIDC עם שתי נקודות זמן, כי סריקות מאותו יום מחמיאות לרישום.
-- **שימוש על סריקות אמיתיות.** מנוע המדידה כבר רץ בדפדפן. חסרים פענוח DICOM מקומי וגרסת דפדפן של מסכת הריאות (ONNX-web), כדי שאפשר יהיה לעבוד בלי IT.
+## What worked and where it failed
+
+Click-based outlines worked best for 12–20 mm solid nodules (Dice 0.76–0.85). The viewer supports independent overlays, brush, threshold, undo and row-level provenance. CSV includes the lab’s fields, minutes, version and parameters.
+
+Large central tumours leaked into vessels or mediastinum and measured 1.4–2.3 times the reference diameter; these cases were flagged. One ground-glass result was 8.0 versus 8.5 mm, another 10.6 versus 6.8 mm and flagged. Some LIDC outlines were about 2 mm tighter than the radiologists’ outer boundaries. Vessel attachment produced a 57 mm repeat measurement for a roughly 13 mm lesion. The experimental detector found 11/21 at ten candidates with about 9.4 false candidates per scan and missed both ground-glass nodules. Baseline discovery remains manual by default.
+
+## Next evidence
+
+Run the [timed crossover protocol](eval/timed-study.md), test a detector on independent cases and evaluate months-apart pairs with independently labelled identity. The available longitudinal LIDC subset has no suitable cross-timepoint reference. Hospital deployment would also require local DICOM decoding and a browser implementation of lung masking, such as ONNX Web.

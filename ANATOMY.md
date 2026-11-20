@@ -62,7 +62,7 @@ A full dissection of what was built: every organ, what it does, how they connect
 | `web/app/src/App.tsx` / `App.css` | 486 | UI. |
 | `web/app/eval/eval.ts`, `calibrate.ts` | 146 | Offline evaluation of the same engine. |
 | `eval/report.py` | 147 | Report and time model. |
-| Docs | — | `decisions.md` (56 decisions), `junctions.md` (J0–J15), `architecture-review.md`, `design.md`, `BRIEF.md`, `COMPLIANCE.md`, `README.md`, this file. |
+| Docs | — | `decisions.md` (56 decisions), `junctions.md` (J0–J15), `architecture-review.md`, `design.md`, `BRIEF.md`, `README.md`, this file. |
 
 ---
 
