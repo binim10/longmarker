@@ -174,23 +174,23 @@ hr{border:none;border-top:1px solid var(--line);margin:28px 0}
     <tr><th>בדיקה</th><th>תוצאה</th></tr>
     <tr><td>זרימה מלאה עם עכבר אמיתי (Playwright, מקומית, אחרי התיקון): קליק על הקשרית, תיקון במברשת, Undo, שמירה, Find, אישור, Export CSV</td><td><span class="pill p-ok">עובד</span> RIDER-1867199702: בבסיס 18.2×13.7 מ"מ ו-1.68 סמ"ק, כמו בדוח ההערכה. המברשת שינתה את הנפח ל-1.69, ו-Undo החזיר ל-1.68. במעקב Find מצא את הקשרית, 16.9×14.3 מ"מ, והצלב נחת עליה. ה-CSV יצא עם שתי השורות, edited ו-matched. נבדקו גם LIDC-0088 ‏(7.9 מ"מ מול 8.5) ו-2669524182 ‏(87.5 מ"מ, Uncertain)</td></tr>
     <tr><td>עמודות ה-CSV מול הגיליון של דניאל</td><td><span class="pill p-ok">זהות</span> 18 העמודות שלו באותו סדר, ואחריהן <span class="mono">provenance, algo_version, params</span>. השורה הראשונה: Research use only</td></tr>
-    <tr><td>האתר החי</td><td><span class="pill p-chg">ישן</span> מחזיר 200 ונפתח בלי התחברות. אבל הוא רץ על build מלפני ה-merge של PR #1 (הטעינה המהירה). הפריסה האחרונה ב-18/11 08:11 UTC, וה-merge ב-09:09 UTC. ב-bundle החי אין את קוד ה-fetch cache</td></tr>
+    <tr><td>האתר החי</td><td>הפריסה האוטומטית ל־Vercel עברה עבור c3410e4. ב־GitHub Actions עברו ארבע בדיקות רגרסיה, lint ובנייה. הפריסה מאמתת גם את שלמות נתוני הסריקות.</td></tr>
     <tr><td>Typecheck (<span class="mono">tsc -b</span>) ו-build</td><td><span class="pill p-ok">עובר</span></td></tr>
   </table></div>
 
   <h3>לפני ההגשה: רשימת פעולות</h3>
   <div class="tbl"><table>
     <tr><th>#</th><th>פעולה</th><th>מצב</th><th>מי</th></tr>
-    <tr><td>1</td><td><b>לפרוס את <span class="mono">main</span> לפרודקשן,</b> כדי שהלינק יכלול את הטעינה המהירה. ה-build כבר מוכן מחוץ לריפו. הפקודה בסוף הטבלה</td><td><span class="pill p-no">חסר</span></td><td>שמחה (הפריסה לא בוצעה. הפקודה למטה)</td></tr>
+    <tr><td>1</td><td>פריסת main לפרודקשן</td><td>בוצע</td><td>Vercel מחובר לריפו. פרטי ההרצה ב־README.</td></tr>
     <tr><td>2</td><td><b>חלק 2: משחק multiplayer ב-Base44.</b> זה חלק מהמטלה. בריפו הזה אין ממנו כלום, והוא צריך חשבון builder (בקשה לעומר מ-Base44)</td><td><span class="pill p-no">לא בריפו הזה: לוודא מצב</span></td><td>שמחה</td></tr>
     <tr><td>3</td><td>הזמנה לריפו הפרטי לבודקי Base44</td><td><span class="pill p-you">פעולה שלך</span></td><td>שמחה</td></tr>
     <tr><td>4</td><td>עדכון ב-<span class="mono">#base44-internal</span>, ושליחת סיכום ההחלטות לנאומי ולדניאל (החלטות 47–48)</td><td><span class="pill p-you">פעולה שלך</span></td><td>שמחה</td></tr>
     <tr><td>5</td><td>רשות: ניסוי מתוזמן על 11 מקרים, ידני מול כלי (<span class="mono">eval/timed-study-cases.md</span>). זו הראיה היחידה שתהפוך את מודל הזמן למדידה</td><td><span class="pill p-chg">לא נעשה</span></td><td>אדם (כשעתיים)</td></tr>
-    <tr><td>6</td><td><b>אחרי הפריסה:</b> קליק אמיתי ביד על האתר החי (מדידה, תיקון, Find, Export), ומדידה חוזרת של זמני הטעינה. 3.3–3.6 שניות נמדדו לפני PR #1, וטעינה קרה של LIDC-0088 באתר הישן לקחה 15.9 שניות</td><td><span class="pill p-no">חסר</span></td><td>שמחה</td></tr>
+    <tr><td>6</td><td>בדיקת הדמו באתר החי</td><td>נבדק חלקית</td><td>בסיס 1.8 שניות, מעקב 1.5 שניות. נבדקו מדידה, שמירה, Find ושתי שורות מוכנות לייצוא. הורדת CSV בפועל נבדקה מקומית.</td></tr>
     <tr><td>7</td><td>להחליט מה לעשות בסימולציית הגידולים הגדולים (<span class="mono">hint.ts</span>, <span class="mono">hint.md</span>). היא קיימת רק כקבצים שלא נשמרו ב-git, ב-worktree</td><td><span class="pill p-na">פתוח</span></td><td>שמחה</td></tr>
   </table></div>
-  <p class="small">פקודת הפריסה (מתיקייה שמחוץ ל-git, לפי J11). ה-build כבר נבנה ב-scratchpad, אבל אפשר גם לבנות מחדש:</p>
-  <p class="en"><code>cd web/app &amp;&amp; npx vite build &amp;&amp; rsync -a --delete dist/ /tmp/longmarker-dist/ &amp;&amp; cd /tmp/longmarker-dist &amp;&amp; npx vercel link --yes --project longmarker &amp;&amp; rm -f .env.local &amp;&amp; npx vercel deploy --prod</code></p>
+  <p class="small">תהליך הבנייה והפריסה מתועד ב־README וב־vercel.json.</p>
+
 </section>
 
 <!-- 2 -->
@@ -306,7 +306,7 @@ hr{border:none;border-top:1px solid var(--line);margin:28px 0}
     <tr><td>Work with RIDER Lung CT and RIDER-LungCT-Seg</td><td><span class="pill p-ok">יש</span></td><td>7 זוגות, וקווי המתאר <span class="mono">GTVp_*_man</span>. הורדה דרך NBIA REST API ולא דרך Data Retriever: אותו דאטה מאותו שרת, כך שאפשר לשחזר הכל בסקריפט</td></tr>
     <tr><td>Free to use with attribution</td><td><span class="pill p-ok">יש</span></td><td>DOI בתחתית הכלי, ב-README וב-CSV</td></tr>
     <tr><td>You may add openly published medical data</td><td><span class="pill p-ok">יש</span></td><td>LIDC-IDRI, ברישיון CC BY 3.0</td></tr>
-    <tr><td>A link to the running tool</td><td><span class="pill p-chg">יש, ישן</span></td><td>הלינק עובד, אבל צריך לפרוס את <span class="mono">main</span> (פעולה 1)</td></tr>
+    <tr><td>A link to the running tool</td><td>פורסם</td><td>longmarker.vercel.app</td></tr>
     <tr><td>Source code + instructions to run it</td><td><span class="pill p-you">הזמנה חסרה</span></td><td>הריפו פרטי, וב-README יש הוראות הרצה מלאות</td></tr>
     <tr><td>Results: what works, what fails, how you measured time saved</td><td><span class="pill p-ok">יש</span></td><td><span class="mono">BRIEF.md</span>, <span class="mono">eval/report.md</span>, הדף הזה</td></tr>
     <tr><td>Be ready to present the project</td><td><span class="pill p-ok">יש</span></td><td>הדף הזה, הדמו והתסריט</td></tr>
@@ -604,7 +604,7 @@ hr{border:none;border-top:1px solid var(--line);margin:28px 0}
     <tr><td>46</td><td>שלושה שבועות עבודה</td><td><span class="pill p-chg">שונה</span></td><td>נבנה ב-17–18/11, כולל ההערכה. הסדר נשמר</td></tr>
     <tr><td>47</td><td>לשתף את סיכום ההחלטות עם נאומי ודניאל</td><td><span class="pill p-you">פעולה שלך</span></td><td>—</td></tr>
     <tr><td>48</td><td>עדכון שבועי ב-#base44-internal</td><td><span class="pill p-you">פעולה שלך</span></td><td>עדכון discovery נוסח. חסר עדכון סיום</td></tr>
-    <tr><td>49</td><td>תוצר: לינק, קוד והוראות, דוח</td><td><span class="pill p-chg">חלקי</span></td><td>הכל קיים. חסרים פריסה של main והזמנה לריפו</td></tr>
+    <tr><td>49</td><td>תוצר: לינק, קוד והוראות, דוח</td><td><span class="pill p-chg">חלקי</span></td><td>הכלי פורסם. גישה לריפו הפרטי דורשת הזמנה</td></tr>
     <tr><td>50</td><td>"Research use only" בכל מסך ובכל ייצוא</td><td><span class="pill p-ok">מומש</span></td><td>נבדק ב-bundle וב-CSV</td></tr>
     <tr><td>51</td><td>הטמעה על סריקות אמיתיות מחוץ להיקף</td><td><span class="pill p-ok">מומש</span></td><td>הדרך מתועדת ב-BRIEF §6</td></tr>
     <tr><td>52</td><td>כישלונות באותה בולטות כמו הצלחות</td><td><span class="pill p-ok">מומש</span></td><td>הדוח, ה-BRIEF והדף הזה</td></tr>
