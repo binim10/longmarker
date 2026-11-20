@@ -87,16 +87,31 @@ export class Viewer {
     this.nv.setPenValue(m === 'add' ? LABEL_TOOL : 0, false)
   }
 
+  // NiiVue's voxel coordinates (frac2vox, moveCrosshairInVox) are in the RAS-reoriented volume, while the
+  // engine and every saved seed use file order. For these scans permRAS = [-1,-2,3]: x and y are mirrored.
+  private ras2file(r: number[]): Vec3 {
+    const p: number[] = (this.nv.volumes[0] as any).permRAS, f: Vec3 = [0, 0, 0]
+    for (let i = 0; i < 3; i++) { const a = Math.abs(p[i]) - 1; f[a] = p[i] < 0 ? this.dims[a] - 1 - r[i] : r[i] }
+    return f
+  }
+  private file2ras(f: number[]): Vec3 {
+    const p: number[] = (this.nv.volumes[0] as any).permRAS, r: Vec3 = [0, 0, 0]
+    for (let i = 0; i < 3; i++) { const a = Math.abs(p[i]) - 1; r[i] = p[i] < 0 ? this.dims[a] - 1 - f[a] : f[a] }
+    return r
+  }
+  /** Crosshair position as a voxel in FILE order (what the engine, the masks and the session use). */
   currentVox(): Vec3 | null {
     const f = (this.nv as any).scene?.crosshairPos
     if (!f) return null
-    const v = this.nv.frac2vox(f) as any
+    const v = this.ras2file(this.nv.frac2vox(f) as any)
     return [Math.round(v[0]), Math.round(v[1]), Math.round(v[2])]
   }
+  /** Move the crosshair to a FILE-order voxel (z = axial slice; x, y default to the current position). */
   goToSlice(z: number, x?: number, y?: number) {
     const c = this.currentVox()
     if (!c) return
-    this.nv.moveCrosshairInVox((x ?? c[0]) - c[0], (y ?? c[1]) - c[1], z - c[2])
+    const from = this.file2ras(c), to = this.file2ras([x ?? c[0], y ?? c[1], z])
+    this.nv.moveCrosshairInVox(to[0] - from[0], to[1] - from[1], to[2] - from[2])
   }
 
   // ----- drawing bitmap (NiiVue stores it in RAS order) -----
@@ -125,6 +140,8 @@ export class Viewer {
     this.refresh()
   }
   refresh() { this.suppressEdit = true; this.nv.refreshDrawing(true); this.suppressEdit = false }
+  /** Make the current drawing an undo point, so Undo after a brush stroke returns to the tool's outline, not to empty. */
+  checkpoint() { this.nv.drawAddUndoBitmap() }
 
   /** Write an ROI mask (file order) into the drawing as LABEL_TOOL. */
   showMask(mask: Uint8Array, box: Box) {

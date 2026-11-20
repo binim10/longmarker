@@ -82,7 +82,11 @@ for x in mt:
     lines.append(f"| {x['baseline']} → {x['followup']} | {x['predicted_error_mm']} | {'yes' if x['found'] else 'no'} | {'✅' if x['correct'] else '❌'} | {'yes' if x['uncertain'] else ''} |")
 n_ok = sum(x["correct"] for x in mt)
 if mt:
-    lines.append(f"\n**{n_ok}/{len(mt)}** follow-up nodules landed on the right nodule. Note: RIDER pairs are same-day scans, "
+    n_flag = sum(x["uncertain"] for x in mt)
+    lines.append(f"\n**{n_ok}/{len(mt)}** follow-up nodules landed on the right nodule. **What “correct” means here:** the outline "
+                 "Find produced overlaps the expert’s follow-up mask by at least one voxel. That is a lenient test of landing on "
+                 "the right nodule, not of outline quality, which the tables above report separately. "
+                 f"**{n_flag} of {len(mt)}** matches were flagged for Daniel to confirm. Note: RIDER pairs are same-day scans, "
                  "which flatters registration; a months-apart follow-up will be harder.")
 
 # --- experimental detection (decisions 28-30, J14) ---

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { Viewer, caseFiles, rleDecode, rleEncode } from './lib/viewer'
-import { getBuffer, getJson, keepOnly } from './lib/fetchCache'
+import { forget, getBuffer, getJson, keepOnly } from './lib/fetchCache'
 import {
   ALGO_VERSION, DEFAULT_SOLID_HU, applyM, componentNear, findInFollowUp, growAuto, lobeAt, lpsToVox, metrics,
   suggestType, voxToLps, type Box, type GrowResult, type Metrics, type Vec3,
@@ -41,6 +41,13 @@ export default function App() {
   const [meta, setMeta] = useState<any>(null)
   const [loading, setLoading] = useState<string>('')
   const [loadMs, setLoadMs] = useState<number | null>(null)
+  const [loadError, setLoadError] = useState<{ c: CaseItem; message: string } | null>(null)
+  const [slowFor, setSlowFor] = useState('') // the loading label that has been running for 15 s
+  // each openCase gets a sequence number; only the latest may touch the viewer or the state
+  const loadSeq = useRef(0)
+  const loadingRef = useRef(false)
+  // NiiVue holds one scene, so viewer loads run one after another and never interleave
+  const viewerQueue = useRef<Promise<unknown>>(Promise.resolve())
   const [session, setSession] = useState<Session>(() => loadSession())
   const [cur, setCur] = useState<Current | null>(null)
   const [mode, setMode] = useState<'measure' | 'add' | 'erase'>('measure')
@@ -109,26 +116,50 @@ export default function App() {
   }
 
   // ---- open case ----
-  async function openCase(c: CaseItem) {
+  async function openCase(c: CaseItem, retry = false) {
     if (!v) return
-    setCur(null); setActive(c); activeRef.current = c; setMsg('')
-    setLoading('Loading scan…'); const t0 = performance.now()
+    const seq = ++loadSeq.current
+    const stale = () => seq !== loadSeq.current
     const base = `/cases/${c.case_id}/`
+    if (retry) forget(base) // a retry downloads this case again instead of waiting on a stalled request
+    setCur(null); setActive(c); activeRef.current = c; setMsg('')
+    setLoadError(null); setLoadMs(null); setMeta(null); metaRef.current = null; setCands([])
+    loadingRef.current = true; setLoading(`Loading ${caseLabel(c)}…`)
+    const t0 = performance.now()
     // next case is prefetched below so Daniel does not wait (advisor: load must stay out of the timing);
     // keep only this case's and the next case's volume buffers in memory
     const nx = cases[cases.findIndex(x => x.case_id === c.case_id) + 1]
     keepOnly([base, ...(nx ? [`/cases/${nx.case_id}/`] : [])])
-    getBuffer(base + 'ct.nii.gz').catch(() => {}) // the big file: start it alongside meta.json
-    const m = await getJson(base + 'meta.json')
-    setMeta(m); metaRef.current = m
-    setCands([])
-    if (m.files?.candidates) getJson(base + m.files.candidates).then(j => setCands(j.candidates || [])).catch(() => {})
-    await v.load(base, caseFiles(m), { win, showExpert, showTool })
-    setMode('measure')
-    const ms = performance.now() - t0
-    setLoadMs(ms); setLoading(''); lastAct.current = Date.now()
-    if (nx) prefetchCase(nx.case_id)
+    try {
+      getBuffer(base + 'ct.nii.gz').catch(() => {}) // the big file: start it alongside meta.json
+      const m = await getJson(base + 'meta.json')
+      if (stale()) return
+      const f = caseFiles(m)
+      // download every volume first (the network is the slow part); a failure lands in catch below
+      await Promise.all([f.ct, f.expert, f.lungs, f.lobes].filter((x): x is string => !!x).map(x => getBuffer(base + x)))
+      if (stale()) return
+      const run = viewerQueue.current.then(() => (stale() ? undefined : v.load(base, f, { win, showExpert, showTool })))
+      viewerQueue.current = run.catch(() => {})
+      await run
+      if (stale()) return
+      setMeta(m); metaRef.current = m
+      if (m.files?.candidates) getJson(base + m.files.candidates).then(j => { if (!stale()) setCands(j.candidates || []) }).catch(() => {})
+      setMode('measure')
+      setLoadMs(performance.now() - t0); loadingRef.current = false; setLoading(''); lastAct.current = Date.now()
+      if (nx) prefetchCase(nx.case_id)
+    } catch (e) {
+      if (stale()) return
+      loadingRef.current = false; setLoading('')
+      setLoadError({ c, message: e instanceof Error ? e.message : String(e) })
+    }
   }
+  // offer a retry while a load is slow (a stalled request never errors on its own)
+  useEffect(() => {
+    if (!loading) return
+    const t = setTimeout(() => setSlowFor(loading), 15000)
+    return () => clearTimeout(t)
+  }, [loading])
+  const slowLoad = !!loading && slowFor === loading
 
   // ---- measurement ----
   function computeCurrent(mask: Uint8Array, box: Box, seed: Vec3, g: GrowResult | null, prev: Partial<Current>): Current | null {
@@ -156,8 +187,10 @@ export default function App() {
     v!.showMask(c.mask, c.box)
     v!.drawLines(c.m.slice, [c.m.longLine, c.m.shortLine])
     v!.goToSlice(c.m.slice, Math.round(c.m.centroid[0]), Math.round(c.m.centroid[1]))
+    v!.checkpoint()
   }
   function onClick(p: Vec3, lo?: number, keep?: Partial<Current>) {
+    if (loadingRef.current) return // the viewer may still hold the previous case
     if (studyRef.current === 'manual') { setMsg('Manual condition: outline with the brush (+ Brush), as you would by hand.'); return }
     const t0 = performance.now()
     const g = growAuto(ctData(), lungsData(), vol(), p, lo !== undefined ? { lo } : {})
@@ -168,7 +201,8 @@ export default function App() {
     setMsg(`Outlined in ${Math.round(performance.now() - t0)} ms`)
   }
   function onEdited() {
-    const r = viewerRef.current!.readMask()
+    if (loadingRef.current) return
+    const r =viewerRef.current!.readMask()
     setCur(prev => {
       if (!r) return null
       const c = computeCurrent(r.mask, r.box, prev?.seed ?? [r.box.lo[0], r.box.lo[1], r.box.lo[2]], null, {
@@ -187,7 +221,10 @@ export default function App() {
   const baselineRows = useMemo(() => active?.pair?.role === 'follow-up' ? session.rows.filter(r => r.caseId === active.pair!.case_id) : [], [active, session.rows])
   async function findFromBaseline(r: Row) {
     if (studyRef.current === 'manual') { setMsg('Manual condition: find the nodule yourself.'); return }
+    if (loadingRef.current || !metaRef.current) return
+    const seq = loadSeq.current
     const bm = await getJson(`/cases/${r.caseId}/meta.json`)
+    if (seq !== loadSeq.current || loadingRef.current) return // another case was opened meanwhile
     const pred = lpsToVox(metaRef.current, applyM(bm.pair.M_to_pair, voxToLps(bm, r.seed)))
     const lo = r.params ? JSON.parse(r.params).lo ?? -450 : -450
     const f = findInFollowUp(ctData(), lungsData(), vol(), pred, r.volume_mm3, lo)
@@ -325,11 +362,17 @@ export default function App() {
               <li>On a <b>follow-up</b> scan, press <b>Find</b> next to a baseline nodule to jump to it.</li></ol>
             <p className="muted">Scroll = change slice · right-drag = contrast · the timer runs only while you work on a case.</p>
           </div>}
-          {loading && <div className="loading"><div className="spinner" />{loading}</div>}
+          {loading && <div className="loading" role="status"><div className="spinner" />{loading}
+            {slowLoad && active && <span className="slow">Still downloading. <button onClick={() => openCase(active, true)}>Retry</button></span>}</div>}
+          {loadError && <div className="loading error" role="alert">
+            <p>Could not load <b>{caseLabel(loadError.c)}</b>.</p>
+            <p className="muted small">{loadError.message}</p>
+            <button className="primary" onClick={() => openCase(loadError.c, true)}>Retry</button>
+          </div>}
         </div>
         <div className="status">
           <span>{msg}</span>
-          <span className="muted">{active ? `${caseLabel(active)} · ${meta?.slice_thickness_mm ?? ''} mm slices${loadMs ? ` · loaded in ${(loadMs / 1000).toFixed(1)} s` : ''} · time on case ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : ''}</span>
+          <span className="muted">{active ? `${caseLabel(active)} · ${loading ? 'loading…' : loadError ? 'not loaded' : `${meta?.slice_thickness_mm ?? ''} mm slices${loadMs !== null ? ` · loaded in ${(loadMs / 1000).toFixed(1)} s` : ''}`} · time on case ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : ''}</span>
         </div>
       </main>
 
@@ -343,7 +386,7 @@ export default function App() {
                 const done = rowsForCase(active.case_id).find(x => x.nodule_id === r.nodule_id)
                 return <div key={r.id} className="fu-row">
                   <span><b>{r.nodule_id}</b> {r.lobe} · {fmt(r.long_axis_mm)} mm</span>
-                  {done ? <span className="ok">{done.match_status || 'saved'}</span> : <button onClick={() => findFromBaseline(r)}>Find in this scan →</button>}
+                  {done ? <span className="ok">{done.match_status || 'saved'}</span> : <button disabled={!!loading} onClick={() => findFromBaseline(r)}>Find in this scan →</button>}
                 </div>
               })}
           </div>

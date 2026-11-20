@@ -95,3 +95,8 @@ footer a { color: inherit; }
 .small { font-size: 12px; margin: 6px 0; }
 .card > .chk { display: flex; align-items: center; gap: 6px; }
 .initials select { margin-left: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.loading { flex-wrap: wrap; text-align: center; }
+.loading.error { flex-direction: column; background: rgba(20,24,30,.92); }
+.loading.error p { margin: 0; }
+.loading .slow { flex-basis: 100%; text-align: center; font-size: 13px; color: #d6dbe4; }
+.loading .slow button { margin-inline-start: 6px; }

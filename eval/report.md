@@ -71,7 +71,7 @@ Median |Δ long|: tool **1.3 mm**, expert 1.4 mm (the tumour does not change in 
 | RIDER-2655999012_test → RIDER-2655999012_retest | 1.7 | yes | ✅ |  |
 | RIDER-2669524182_test → RIDER-2669524182_retest | 1.7 | yes | ✅ | yes |
 
-**7/7** follow-up nodules landed on the right nodule. Note: RIDER pairs are same-day scans, which flatters registration; a months-apart follow-up will be harder.
+**7/7** follow-up nodules landed on the right nodule. **What “correct” means here:** the outline Find produced overlaps the expert’s follow-up mask by at least one voxel. That is a lenient test of landing on the right nodule, not of outline quality, which the tables above report separately. **4 of 7** matches were flagged for Daniel to confirm. Note: RIDER pairs are same-day scans, which flatters registration; a months-apart follow-up will be harder.
 
 ## Experimental candidate detection (decisions 28–30)
 
